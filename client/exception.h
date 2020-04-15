@@ -31,4 +31,20 @@ class AcceptError: public std::exception
 	}
 };
 
+class AddressError: public std::exception
+{
+	virtual const char* what() const throw()
+	{
+		return "Invalid Address/Wrong address format";
+	}
+};
+
+
+class ConnectError: public std::exception
+{
+	virtual const char* what() const throw()
+	{
+		return "Connection failed, server offline or full";
+	}
+};
 #endif
