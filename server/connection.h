@@ -7,6 +7,8 @@
 #include <string.h>
 #include <memory>
 #include <unistd.h>
+#include "logger.h"
+
 
 #include <iostream>
 
@@ -40,15 +42,16 @@ class Connection
 		if(bind(sockfd,(struct sockaddr*)&connection, sizeof(connection))< 0)
 			throw BindError();
 		
-		std::cout<<"ready to listen"<<std::endl; //TODO: Log system
-							
+		Logger::getInstance()->Log("Ready to listen");
+		std::cout<<"ready to listen"<<std::endl; 							
 		listen(sockfd,5);
 	}
 
 
 	std::shared_ptr<Connection> Accept()
 	{
-		std::cout<<"Accepting connection"<<std::endl;
+		Logger::getInstance()->Log("Accepting connections");
+		std::cout<<"Accepting connections"<<std::endl;
 		int addrlen = sizeof(connection);
 		int socket = accept(sockfd,(struct sockaddr *)&connection,(socklen_t*)&addrlen);	
 		if(socket < 0)
@@ -57,7 +60,8 @@ class Connection
 		}
 		std::shared_ptr<Connection> c =std::make_shared<Connection>();
 		c->setsocket(socket);
-
+		Logger::getInstance()->Log("Connected");
+		std::cout<<"Connected"<<std::endl;
 		return c;
 	}
 
