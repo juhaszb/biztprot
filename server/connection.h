@@ -65,6 +65,11 @@ class Connection
 		return c;
 	}
 
+	int getsocket()
+	{
+		return sockfd;
+	}
+
 
 
 	~Connection()
