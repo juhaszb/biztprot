@@ -6,13 +6,18 @@
 #include <sys/time.h>
 #include <vector>
 #include <algorithm>
-
+#include "generate.h"
+#include <filesystem>
 
 int main(int argc, char*argv[])
 {
-	try
+	if(!std::filesystem::exists("public.key") || !std::filesystem::exists("private.key"))
 	{
-
+		generate_rsa_tofile("public.key","private.key");
+		Logger::getInstance()->Log("Generating new keys, because one of the keys is missing");
+	}
+	try
+	{	
 		Logger::getInstance()->Log("Ez tehat mukodik");
 		Connection master(18000,INADDR_ANY);
 
@@ -63,8 +68,10 @@ int main(int argc, char*argv[])
 					if((read(sd,buffer,1024) == 0))
 					{
 						auto it = std::find(clients.begin(),clients.end(),s);
-						
+							
 						clients.erase(it);
+					
+						std::cout<<"somebody disconnected"<<std::endl;
 					}
 					else
 					{
