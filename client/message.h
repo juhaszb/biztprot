@@ -13,7 +13,7 @@ public:
 	Message(std::string&& type,std::string&& data, unsigned int timestamp,unsigned int sessionId): type{type},data{data},timestamp{timestamp},sessionId{sessionId}{}
 	std::string toByteStream()  
 	{
-		return reinterpret_cast<char*>(this);	
+		return type+data+std::to_string(timestamp)+std::to_string(sessionId);
 	}
 };
 
