@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <message.h>
-//#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string.hpp>
 
 uint64_t constexpr mix(char m, uint64_t s)
  {
@@ -111,13 +111,6 @@ class UICommand
     }
 }
 
-
-
-
-
-std::string message;
-
-cout<<"Write your command!";
 
 
 #endif
