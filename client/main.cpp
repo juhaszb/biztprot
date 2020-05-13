@@ -6,6 +6,9 @@
 #include "generate.h"
 #include "connection.h"
 #include <string>
+#include "message.h"
+#include "ui.h"
+
 
 int main(int argc, char*argv[])
 {
@@ -19,14 +22,17 @@ int main(int argc, char*argv[])
 
 
 	CryptoPP::StringSource ss(plain,true,new CryptoPP::PK_EncryptorFilter(rng,e,new CryptoPP::StringSink(cipher)));
-	std::cout<<cipher<<std::endl;
-
-	try{
+	//std::cout<<cipher<<std::endl;
+	Message m("ab","baaab",12,25);
+	std::cout<<m.toByteStream()<<std::endl;
+	UICommand ui{};
+	ui.commandcall("Login");
+	/*try{
 		Connection c;
 	}
 	catch(std::exception& e)
 	{
 		std::cout<<"Exception caught"<<std::endl;
-	}
+	}*/
 	return 0;
 }
