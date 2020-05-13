@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <message.h>
+#include "message.h"
 #include <boost/algorithm/string.hpp>
 
 uint64_t constexpr mix(char m, uint64_t s)
@@ -21,9 +21,10 @@ class UICommand
 {
     std::string command;
 
+
     public:
     UICommand(std::string&& com):command{com}{}
-    Message commandcall(string&& command) 
+    Message commandcall(std::string&& command) 
     {
         std::vector<std::string> results;
         boost::split(results, command, [](char c){return c == ' ';});
@@ -109,7 +110,7 @@ class UICommand
             break;
         }
     }
-}
+};
 
 
 
