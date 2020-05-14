@@ -1,6 +1,7 @@
 #include <cryptopp/filters.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/rsa.h>
+#include <cryptopp/aes.h>
 #include <exception>
 #include <iostream>
 #include "generate.h"
@@ -8,7 +9,7 @@
 #include <string>
 #include "message.h"
 #include "ui.h"
-
+#include "crypto.h"
 
 int main(int argc, char*argv[])
 {
@@ -38,6 +39,16 @@ int main(int argc, char*argv[])
 	std::cout <<m.toByteStream() <<std::endl;
 	try{
 		Connection c;
+		CryptoPP::AutoSeededRandomPool prng;
+		byte key[CryptoPP::AES::DEFAULT_KEYLENGTH];
+		prng.GenerateBlock(key,CryptoPP::AES::DEFAULT_KEYLENGTH);
+		MyCrypto mm(key);
+
+		std::string ciph = mm.encrypt(m.toByteStream());
+
+
+
+		c.Send(ciph);
 	}
 	catch(std::exception& e)
 	{

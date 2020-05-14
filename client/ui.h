@@ -124,10 +124,29 @@ class UICommand
             break;
 	    }
 	case REGISTER:
+	    {
+	    std::cout<<"Please choose a username"<<std::endl;
+	    std::string username;
+	    std::cin>>username;
+	    std::string password("a");
+	    std::cin.clear();
+	    std::string password2("b");
+	    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+	    while( password != password2)
+	    {
+		    password= getpass("Please choose a password",true); 
+	    	    password2= getpass("Please enter the chosen password once more!",true);
+	            if(password != password2)
+		    {
+			std::cout<<"The passwords do not match"<<std::endl;
+		    }
+	    }
+
             //Message m = new Message...
             //return m;
-	    return Message("dummy","dummy");
+	    return Message(std::string(1,REGISTER),username+";"+password);
             break;
+	    }
         case MKD:
             if(results.size()!=2){
                 std::cout<<"Missing or too much operand!";
