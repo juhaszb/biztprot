@@ -1,8 +1,8 @@
 #include "crypto.h"
 
-MyCrypto::MyCrypto(byte k[CryptoPP::AES::DEFAULT_KEYLENGTH]){
+MyCrypto::MyCrypto(byte k[CryptoPP::AES::MAX_KEYLENGTH]){
     //init key
-    for(int i = 0; i < CryptoPP::AES::DEFAULT_KEYLENGTH; i++){
+    for(int i = 0; i < CryptoPP::AES::MAX_KEYLENGTH; i++){
         MyCrypto::key[i] = k[i];
     }
 }

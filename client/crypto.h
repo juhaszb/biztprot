@@ -12,10 +12,10 @@
 class MyCrypto {
 private:
 CryptoPP::AutoSeededRandomPool prng;
-byte key[CryptoPP::AES::DEFAULT_KEYLENGTH];
+byte key[CryptoPP::AES::MAX_KEYLENGTH];
 const int TAG_SIZE = 12;
 public:
-MyCrypto(byte key[CryptoPP::AES::DEFAULT_KEYLENGTH]);
+MyCrypto(byte key[CryptoPP::AES::MAX_KEYLENGTH]);
 std::string encrypt(std::string plaintext);
 std::string decrypt(std::string ciphertext);
 };
