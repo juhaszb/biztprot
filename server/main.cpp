@@ -9,10 +9,15 @@
 #include "generate.h"
 #include <filesystem>
 #include "message.h"
+#include <cryptopp/aes.h>
+#include <cryptopp/osrng.h>
+#include "crypto.h"
 
 
 int main(int argc, char*argv[])
 {
+	CryptoPP::AutoSeededRandomPool prng;
+	byte key[CryptoPP::AES::MAX_KEYLENGTH];
 	if(!std::filesystem::exists("public.key") || !std::filesystem::exists("private.key"))
 	{
 		generate_rsa_tofile("public.key","private.key");
@@ -79,7 +84,7 @@ int main(int argc, char*argv[])
 					{
 						std::cout<<"The message we got was"<<buffer <<std::endl;
 						std::cout<<"length is :"<< strlen(buffer) <<std::endl;
-						Message m = Message::fromString(std::string(buffer));
+						//Message m = Message::fromString(std::string(buffer));
 						// Itt kell lekezelni az üteneteket... feldolgozni stb...
 
 					}
