@@ -12,6 +12,6 @@
 #define EXIT '8'
 #define REGISTER '9'
 #define LOGIN 'a'
-
+#define ERROR 'e'
 
 #endif
