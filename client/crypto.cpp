@@ -18,6 +18,7 @@ std::string MyCrypto::encrypt(std::string plaintext){
         e.SetKeyWithIV(MyCrypto::key, sizeof(MyCrypto::key), iv, sizeof(iv));
 
         //TODO: output the ciphertext from AES-GCM to cipher
+        CryptoPP::StringSource(plaintext, true, new CryptoPP::AuthenticatedEncryptionFilter(e, new CryptoPP::StringSink(cipher)));
     }
     catch(const std::exception& e){
         std::cerr << e.what() << '\n';
@@ -26,6 +27,8 @@ std::string MyCrypto::encrypt(std::string plaintext){
     //converting byte[] to string
     std::string iv_s(reinterpret_cast<const char*>(iv), CryptoPP::AES::BLOCKSIZE);
 
+    std::cout << iv_s.length() << std::endl;
+
     return iv_s + cipher;
 }
 
@@ -33,14 +36,18 @@ std::string MyCrypto::decrypt(std::string ciphertext){
     std::string plain;
     byte iv[CryptoPP::AES::BLOCKSIZE];
 
-    //TODO: cut off iv from the begining of ciphertext
+    std::string iv_s = ciphertext.substr(0, CryptoPP::AES::BLOCKSIZE);
+    for(int i = 0; i < CryptoPP::AES::BLOCKSIZE; i++){
+        iv[i] = (byte)iv_s[i];
+    }
+
+    ciphertext.erase(0, CryptoPP::AES::BLOCKSIZE);
 
     try
     {
         CryptoPP::GCM<CryptoPP::AES>::Decryption d;
         d.SetKeyWithIV(MyCrypto::key, sizeof(MyCrypto::key), iv, sizeof(iv));
-
-        //TODO use decrypt and push output to plain
+        CryptoPP::StringSource s(ciphertext, true, new CryptoPP::AuthenticatedDecryptionFilter(d, new CryptoPP::StringSink(plain)));
     }
     catch(const std::exception& e)
     {

@@ -7,6 +7,7 @@
 #include <cryptopp/osrng.h>
 #include <cryptopp/aes.h>
 #include <iostream>
+#include <cryptopp/filters.h>
 
 class MyCrypto {
 private:
