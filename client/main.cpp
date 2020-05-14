@@ -15,6 +15,9 @@
 typedef unsigned char byte; 
 #endif
 
+
+
+
 int main(int argc, char*argv[])
 {
 	CryptoPP::AutoSeededRandomPool rng;
