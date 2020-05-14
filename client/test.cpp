@@ -6,8 +6,8 @@
 int main(){
 
     CryptoPP::AutoSeededRandomPool prng;
-    byte key[CryptoPP::AES::DEFAULT_KEYLENGTH];
-    prng.GenerateBlock(key, CryptoPP::AES::DEFAULT_KEYLENGTH);
+    byte key[CryptoPP::AES::MAX_KEYLENGTH];
+    prng.GenerateBlock(key, CryptoPP::AES::MAX_KEYLENGTH);
     MyCrypto m(key);
 
     std::string plain = "Hello";
@@ -15,7 +15,7 @@ int main(){
 
     std::string cipher = m.encrypt(plain);
 
-    std::cout << cipher << std::endl;
+    std::cout << "Ciphertext: " << cipher << std::endl;
 
     std::cout << "The unciphered value: " << std::endl;
 
