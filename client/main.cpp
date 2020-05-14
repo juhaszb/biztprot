@@ -11,6 +11,10 @@
 #include "ui.h"
 #include "crypto.h"
 
+#ifndef byte
+typedef usigned char byte; 
+#endif
+
 int main(int argc, char*argv[])
 {
 	CryptoPP::AutoSeededRandomPool rng;
@@ -40,8 +44,8 @@ int main(int argc, char*argv[])
 	try{
 		Connection c;
 		CryptoPP::AutoSeededRandomPool prng;
-		byte key[CryptoPP::AES::DEFAULT_KEYLENGTH];
-		prng.GenerateBlock(key,CryptoPP::AES::DEFAULT_KEYLENGTH);
+		byte key[CryptoPP::AES::MAX_KEYLENGTH];
+		prng.GenerateBlock(key,CryptoPP::AES::MAX_KEYLENGTH);
 		MyCrypto mm(key);
 
 		std::string ciph = mm.encrypt(m.toByteStream());
