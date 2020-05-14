@@ -13,7 +13,7 @@
 #include <cryptopp/osrng.h>
 #include "crypto.h"
 #ifndef byte
-typedef unsigned char byte
+typedef unsigned char byte;
 #endif
 
 int main(int argc, char*argv[])

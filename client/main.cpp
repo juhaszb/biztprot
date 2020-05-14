@@ -12,7 +12,7 @@
 #include "crypto.h"
 
 #ifndef byte
-typedef usigned char byte; 
+typedef unsigned char byte; 
 #endif
 
 int main(int argc, char*argv[])

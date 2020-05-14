@@ -9,6 +9,11 @@
 #include <iostream>
 #include <cryptopp/filters.h>
 
+
+#ifndef byte
+typedef  unsigned char byte;
+#endif
+
 class MyCrypto {
 private:
 CryptoPP::AutoSeededRandomPool prng;
