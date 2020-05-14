@@ -27,8 +27,6 @@ std::string MyCrypto::encrypt(std::string plaintext){
     //converting byte[] to string
     std::string iv_s(reinterpret_cast<const char*>(iv), CryptoPP::AES::BLOCKSIZE);
 
-    std::cout << iv_s.length() << std::endl;
-
     return iv_s + cipher;
 }
 
