@@ -9,7 +9,7 @@
 
 #include <utility>
 
-void LoadPublicKey(const std::string& filename,
+void LoadPublicKey(const std::string& filename,CryptoPP::PublicKey& key);
 
 std::pair<CryptoPP::RSA::PrivateKey,CryptoPP::RSA::PublicKey> generate_rsa_keys();
 

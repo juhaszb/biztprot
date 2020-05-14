@@ -1,3 +1,4 @@
+#include <cryptopp/filters.h>
 #include <iostream>
 #include "connection.h"
 #include <exception>
@@ -10,6 +11,7 @@
 #include <filesystem>
 #include "message.h"
 #include <cryptopp/aes.h>
+#include <cryptopp/rsa.h>
 #include <cryptopp/osrng.h>
 #include "crypto.h"
 #ifndef byte
@@ -20,6 +22,17 @@ int main(int argc, char*argv[])
 {
 	CryptoPP::AutoSeededRandomPool prng;
 	byte key[CryptoPP::AES::MAX_KEYLENGTH];
+	CryptoPP::RSA::PrivateKey pkey;
+	CryptoPP::AutoSeededRandomPool rng;
+
+	CryptoPP::InvertibleRSAFunction params;
+	params.GenerateRandomWithKeySize(rng,4096);
+
+	LoadPrivateKey("private.key",pkey);
+
+	CryptoPP::RSAES_OAEP_SHA_Decryptor d(pkey);
+
+
 	if(!std::filesystem::exists("public.key") || !std::filesystem::exists("private.key"))
 	{
 		generate_rsa_tofile("public.key","private.key");
@@ -74,7 +87,7 @@ int main(int argc, char*argv[])
 				if(FD_ISSET(sd, &readfs))
 				{
 					char buffer[512];
-					if((read(sd,buffer,1021) == 0))
+					if((read(sd,buffer,511) == 0))
 					{
 						auto it = std::find(clients.begin(),clients.end(),s);
 							
@@ -84,8 +97,13 @@ int main(int argc, char*argv[])
 					}
 					else
 					{
-						std::cout<<"The message we got was"<<buffer <<std::endl;
+						//std::cout<<"The message we got was"<<buffer <<std::endl;
 						std::cout<<"length is :"<< strlen(buffer) <<std::endl;
+						std::string recovered;
+						CryptoPP::StringSource ss(std::string{buffer},true,
+								new CryptoPP::PK_DecryptorFilter(rng,d,new CryptoPP::StringSink(recovered)));
+
+						std::cout<<recovered<<std::endl;
 						//Message m = Message::fromString(std::string(buffer));
 						// Itt kell lekezelni az üteneteket... feldolgozni stb...
 

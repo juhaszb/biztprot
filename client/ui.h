@@ -152,7 +152,7 @@ class UICommand
 		
             }
             else{
-                Message m=Message(std::string(1,MKD),results[1]);
+                Message m(std::string(1,MKD),results[1]);
                 return m;
             }
             break;
@@ -163,14 +163,16 @@ class UICommand
                 return m;
             }
             else{
-                Message m=Message(std::string(1,RMD),results[1]);
+                Message m(std::string(1,RMD),results[1]);
                 return m;
             }
             break;
         case GWD:
-            Message m = Message(std::string(1,GWD),"");
+	    {
+            Message m(std::string(1,GWD),"");
             return m;
             break;
+	    }
         case CWD:
             if(results.size()!=2){
                 std::cout<<"Missing or too much operand!";
@@ -178,18 +180,21 @@ class UICommand
                 return m;
             }
             else{
-                Message m =Message(std::string(1,CWD),results[1]);
+                Message m(std::string(1,CWD),results[1]);
                 return m;
             }
             break;
         case LST:
-            Message m =Message(std::string(1,LST),"");
+	    {
+            Message m(std::string(1,LST),"");
             return m;
             break;
+	    }
         case UPL:
+	    {
             if(results.size()!=2){
                 std::cout<<"Missing or too much operand!";
-                Message m= Message(std::string(1,ERROR),"");
+                Message m(std::string(1,ERROR),"");
                 return m;
             }
             else{
@@ -197,11 +202,12 @@ class UICommand
                 //return m;
 	        return Message("dummy","dummy");
             }
+	    }
             break;
         case DNL:
             if(results.size()!=2){
                 std::cout<<"Missing or too mcuh operand!";
-                Message m= Message(std::string(1,ERROR),"");
+                Message m(std::string(1,ERROR),"");
                 return m;
             }
             else{
@@ -213,18 +219,20 @@ class UICommand
         case RMF:
             if(results.size()!=2){
                 std::cout<<"Missing or too much operand!";
-                Message m=  Message(std::string(1,ERROR),"");
+                Message m(std::string(1,ERROR),"");
                 return m;
             }
             else{
-                Message m = Message(std::string(1,RMF),results[1]);
+                Message m(std::string(1,RMF),results[1]);
                 return m;
             }
             break;
         case EXIT:
-            Message m = Message(std::string(1,EXIT),"");
+	    {
+            Message m(std::string(1,EXIT),"");
             return m;
             break;
+	    }
         default:
             std::cout<<"Command not found";
 	        Message m= Message(std::string(1,ERROR),"");

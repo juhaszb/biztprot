@@ -21,13 +21,21 @@ typedef unsigned char byte;
 int main(int argc, char*argv[])
 {
 	CryptoPP::AutoSeededRandomPool rng;
-	std::pair<CryptoPP::RSA::PrivateKey,CryptoPP::RSA::PublicKey> keys = generate_rsa_keys();	
+	//std::pair<CryptoPP::RSA::PrivateKey,CryptoPP::RSA::PublicKey> keys = generate_rsa_keys();	
+	CryptoPP::RSA::PublicKey pkey;
+	LoadPublicKey("public.key",pkey);
 	
-	std::string plain="Hello";
 	std::string cipher;
+
+	CryptoPP::AutoSeededRandomPool prng;
+	byte key[CryptoPP::AES::MAX_KEYLENGTH];
+	prng.GenerateBlock(key,CryptoPP::AES::MAX_KEYLENGTH);
+	MyCrypto mm(key);
+	
+	std::string plain = std::string{reinterpret_cast<char*>(key)};
 	
 
-	CryptoPP::RSAES_OAEP_SHA_Encryptor e(keys.second);
+	CryptoPP::RSAES_OAEP_SHA_Encryptor e(pkey);
 
 
 	CryptoPP::StringSource ss(plain,true,new CryptoPP::PK_EncryptorFilter(rng,e,new CryptoPP::StringSink(cipher)));
@@ -46,16 +54,8 @@ int main(int argc, char*argv[])
 	std::cout <<m.toByteStream() <<std::endl;
 	try{
 		Connection c;
-		CryptoPP::AutoSeededRandomPool prng;
-		byte key[CryptoPP::AES::MAX_KEYLENGTH];
-		prng.GenerateBlock(key,CryptoPP::AES::MAX_KEYLENGTH);
-		MyCrypto mm(key);
-
 		std::string ciph = mm.encrypt(m.toByteStream());
-
-
-
-		c.Send(ciph);
+		c.Send(cipher);
 	}
 	catch(std::exception& e)
 	{

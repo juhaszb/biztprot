@@ -6,6 +6,23 @@
 #include <cryptopp/files.h>
 #include "generate.h"
 
+void Load(const std::string& filename,CryptoPP::BufferedTransformation& bt)
+{
+	CryptoPP::FileSource file(filename.c_str(),true);
+
+	file.TransferTo(bt);
+	bt.MessageEnd();
+}
+
+
+void LoadPrivateKey(const std::string& filename,CryptoPP::PrivateKey& key)
+{
+	CryptoPP::ByteQueue queue;
+	Load(filename,queue);
+
+	key.Load(queue);
+}
+
 
 
 
