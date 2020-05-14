@@ -8,6 +8,8 @@
 #include <algorithm>
 #include "generate.h"
 #include <filesystem>
+#include "message.h"
+
 
 int main(int argc, char*argv[])
 {
@@ -76,6 +78,8 @@ int main(int argc, char*argv[])
 					else
 					{
 						std::cout<<"The message we got was"<<buffer <<std::endl;
+						std::cout<<"length is :"<< strlen(buffer) <<std::endl;
+						Message m = Message::fromString(std::string(buffer));
 						// Itt kell lekezelni az üteneteket... feldolgozni stb...
 
 					}
