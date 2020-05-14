@@ -2,13 +2,15 @@
 #define _parse_h_
 #include "message.h"
 #include "messagetype.h"
+#include "connection.h"
 
-class Parser
-{
+class Parser{
 	public:
-	Message parse(Message m)
-	{
-				
+	/**
+	* Parses the message and constructs a reply message 
+	*/
+	Message parse(Message m, std::shared_ptr<Connection> c){
+		
 	}
 };
 

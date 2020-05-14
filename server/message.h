@@ -46,6 +46,24 @@ public:
 	  //Message m{"bla","bla",0,0};
 	  return m;
 	}
+
+	//Getters and setter
+
+	std::string getType(){
+		return type;
+	}
+
+	std::string getData(){
+		return data;
+	}
+
+	int getTimestamp(){
+		return timestamp;
+	}
+
+	int getSessionId(){
+		return sessionId;
+	}
 };
 
 #endif
