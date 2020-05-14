@@ -8,7 +8,7 @@
 #include <boost/algorithm/string.hpp>
 #include <map>
 #include "messagetype.h"
-
+/*
 uint64_t constexpr mix(char m, uint64_t s)
  {
   return ((s<<7) + ~(s>>3)) + ~m;
@@ -18,6 +18,12 @@ uint64_t constexpr hash(const char * m)
  {
   return (*m) ? mix(*m,hash(m+1)) : 0;
  }
+*/
+
+
+
+
+
 
 class UICommand
 {
@@ -43,7 +49,7 @@ class UICommand
 
 
 
-   void commandcall(std::string&& command) 
+   void commandcall(std::string& command) 
     {
         std::vector<std::string> results;
         boost::split(results, command, [](char c){return c == ' ';});
@@ -51,17 +57,23 @@ class UICommand
         switch (options[results[0]])
         {
         case LOGIN:
+	    {
+	    std::cout<<"Please enter your username"<<std::endl;
+            std::string username;
+	    std::cin>>username;
+
             //Message m = new Message...
             //return m;
 	    std::cout<<"login volt"<<std::endl;
             break;
+	    }
 	case REGISTER:
             //Message m = new Message...
             //return m;
             break;
         case MKD:
-            if(results.size()==1){
-                std::cout<<"Missing operand!";
+            if(results.size()!=2){
+                std::cout<<"Missing or too much operand!";
             }
             else{
                 //Message m = new Message...
@@ -69,8 +81,8 @@ class UICommand
             }
             break;
         case RMD:
-            if(results.size()==1){
-                std::cout<<"Missing operand!";
+            if(results.size()!=2){
+                std::cout<<"Missing or too much operand!";
             }
             else{
                 //Message m = new Message...
@@ -82,8 +94,8 @@ class UICommand
             //return m;
             break;
         case CWD:
-            if(results.size()==1){
-                std::cout<<"Missing operand!";
+            if(results.size()!=2){
+                std::cout<<"Missing or too much operand!";
             }
             else{
                 //Message m = new Message...
@@ -95,8 +107,8 @@ class UICommand
             //return m;
             break;
         case UPL:
-            if(results.size()==1){
-                std::cout<<"Missing operand!";
+            if(results.size()!=2){
+                std::cout<<"Missing or too much operand!";
             }
             else{
                 //Message m = new Message...
@@ -104,8 +116,8 @@ class UICommand
             }
             break;
         case DNL:
-            if(results.size()==1){
-                std::cout<<"Missing operand!";
+            if(results.size()!=2){
+                std::cout<<"Missing or too mcuh operand!";
             }
             else{
                 //Message m = new Message...
@@ -113,8 +125,8 @@ class UICommand
             }
             break;
         case RMF:
-            if(results.size()==1){
-                std::cout<<"Missing operand!";
+            if(results.size()!=2){
+                std::cout<<"Missing or too much operand!";
             }
             else{
                 //Message m = new Message...

@@ -17,16 +17,24 @@ int main(int argc, char*argv[])
 	
 	std::string plain="Hello";
 	std::string cipher;
+	
 
 	CryptoPP::RSAES_OAEP_SHA_Encryptor e(keys.second);
 
 
 	CryptoPP::StringSource ss(plain,true,new CryptoPP::PK_EncryptorFilter(rng,e,new CryptoPP::StringSink(cipher)));
 	//std::cout<<cipher<<std::endl;
-	Message m("ab","baaab",12,25);
-	std::cout<<m.toByteStream()<<std::endl;
+	//Message m("ab","baaab",12,25);
+	//std::cout<<m.toByteStream()<<std::endl;
+		
+	bool loggedin = false;
+
+	std::cout<<"Welcome to our simple FTP program!"<<std::endl;
+	std::cout<<"Please enter whether you would like to Register or Login" <<std::endl;
+	std::string in;
+	std::cin >> in;
 	UICommand ui{};
-	ui.commandcall("Login");
+	ui.commandcall(in);
 	/*try{
 		Connection c;
 	}

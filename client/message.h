@@ -15,6 +15,11 @@ public:
 	{
 		return type+data+std::to_string(timestamp)+std::to_string(sessionId);
 	}
+	static Message& fromString()
+	{
+	  
+	  return Message();
+	}
 };
 
 #endif
