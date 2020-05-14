@@ -64,8 +64,8 @@ int main(int argc, char*argv[])
 
 				if(FD_ISSET(sd, &readfs))
 				{
-					char buffer[1025];
-					if((read(sd,buffer,1024) == 0))
+					char buffer[512];
+					if((read(sd,buffer,1021) == 0))
 					{
 						auto it = std::find(clients.begin(),clients.end(),s);
 							
@@ -75,6 +75,7 @@ int main(int argc, char*argv[])
 					}
 					else
 					{
+						std::cout<<"The message we got was"<<buffer <<std::endl;
 						// Itt kell lekezelni az üteneteket... feldolgozni stb...
 
 					}

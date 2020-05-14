@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <string>
 #include <unistd.h>
 
 class Connection
@@ -32,10 +33,10 @@ public:
 	}
 	
 
-	void Send()
+	void Send(std::string message)
 	{
-		const char * hello = "Hello there";
-		send(sock,hello,strlen(hello),0);
+		//const char * hello = "Hello there";
+		send(sock,message.c_str(),strlen(message.c_str()),0);
 	}
 
 

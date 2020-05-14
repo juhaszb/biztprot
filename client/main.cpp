@@ -34,13 +34,14 @@ int main(int argc, char*argv[])
 	std::string in;
 	std::cin >> in;
 	UICommand ui{};
-	ui.commandcall(in);
-	/*try{
+	Message m = ui.commandcall(in);
+	std::cout <<m.toByteStream() <<std::endl;
+	try{
 		Connection c;
 	}
 	catch(std::exception& e)
 	{
 		std::cout<<"Exception caught"<<std::endl;
-	}*/
+	}
 	return 0;
 }

@@ -10,15 +10,26 @@ class Message
 	unsigned int timestamp;
 	unsigned int sessionId;
 public:
-	Message(std::string&& type,std::string&& data, unsigned int timestamp,unsigned int sessionId): type{type},data{data},timestamp{timestamp},sessionId{sessionId}{}
+	Message(std::string&& type,std::string&& data, unsigned int timestamp=0,unsigned int sessionId=0): type{type},data{data},timestamp{timestamp},sessionId{sessionId}{}
 	std::string toByteStream()  
 	{
-		return type+data+std::to_string(timestamp)+std::to_string(sessionId);
+		return type+"|"+data+"|"+std::to_string(timestamp)+"|"+std::to_string(sessionId);
 	}
-	static Message& fromString()
+
+	void setTimestamp(unsigned int ts)
+	{
+		timestamp = ts;
+	}
+
+	void setSessionId(unsigned int sid)
+	{
+		sessionId = sid;
+	}
+
+	static void fromString()
 	{
 	  
-	  return Message();
+	  return ;
 	}
 };
 

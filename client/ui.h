@@ -7,6 +7,7 @@
 #include "message.h"
 #include <boost/algorithm/string.hpp>
 #include <map>
+#include <termios.h>
 #include "messagetype.h"
 /*
 uint64_t constexpr mix(char m, uint64_t s)
@@ -40,15 +41,15 @@ int getch() {
 
 
 
-string getpass(const char *prompt, bool show_asterisk=true)
+std::string getpass(const char *prompt, bool show_asterisk=true)
 {
   const char BACKSPACE=127;
   const char RETURN=10;
 
-  string password;
+  std::string password;
   unsigned char ch=0;
 
-  cout <<prompt<<endl;
+  std::cout <<prompt <<std::endl;
 
   while((ch=getch())!=RETURN)
     {
@@ -57,7 +58,7 @@ string getpass(const char *prompt, bool show_asterisk=true)
             if(password.length()!=0)
               {
                  if(show_asterisk)
-                 cout <<"\b \b";
+                 std::cout <<"\b \b";
                  password.resize(password.length()-1);
               }
          }
@@ -65,10 +66,10 @@ string getpass(const char *prompt, bool show_asterisk=true)
          {
              password+=ch;
              if(show_asterisk)
-                 cout <<'*';
+                 std::cout <<'*';
          }
     }
-  cout <<endl;
+  std::cout <<std::endl;
   return password;
 }
 
@@ -99,7 +100,7 @@ class UICommand
 
 
 
-   void commandcall(std::string& command) 
+   Message commandcall(std::string& command) 
     {
         std::vector<std::string> results;
         boost::split(results, command, [](char c){return c == ' ';});
@@ -111,7 +112,12 @@ class UICommand
 	    std::cout<<"Please enter your username"<<std::endl;
             std::string username;
 	    std::cin>>username;
-
+	    std::string password;
+	    std::cin.clear();
+	    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	    password = getpass("Password:",true);
+	    std::cout<<"The password you input:"<< password <<std::endl;
+	    return Message(std::string(1,LOGIN),username+";"+password);
             //Message m = new Message...
             //return m;
 	    std::cout<<"login volt"<<std::endl;
@@ -120,12 +126,15 @@ class UICommand
 	case REGISTER:
             //Message m = new Message...
             //return m;
+	    return Message("dummy","dummy");
             break;
         case MKD:
             if(results.size()!=2){
                 std::cout<<"Missing or too much operand!";
+		
             }
             else{
+		return Message("dummy","dummy");
                 //Message m = new Message...
                 //return m;
             }
@@ -135,6 +144,7 @@ class UICommand
                 std::cout<<"Missing or too much operand!";
             }
             else{
+		return Message("dummy","dummy");
                 //Message m = new Message...
                 //return m;
             }
@@ -142,12 +152,14 @@ class UICommand
         case GWD:
             //Message m = new Message...
             //return m;
+	    return Message("dummy","dummy");
             break;
         case CWD:
             if(results.size()!=2){
                 std::cout<<"Missing or too much operand!";
             }
             else{
+		return Message("dummy","dummy");
                 //Message m = new Message...
                 //return m;
             }
@@ -155,6 +167,7 @@ class UICommand
         case LST:
             //Message m = new Message...
             //return m;
+	    return Message("dummy","dummy");
             break;
         case UPL:
             if(results.size()!=2){
@@ -163,6 +176,7 @@ class UICommand
             else{
                 //Message m = new Message...
                 //return m;
+	        return Message("dummy","dummy");
             }
             break;
         case DNL:
@@ -172,6 +186,7 @@ class UICommand
             else{
                 //Message m = new Message...
                 //return m;
+		return Message("dummy","dummy");
             }
             break;
         case RMF:
@@ -181,14 +196,17 @@ class UICommand
             else{
                 //Message m = new Message...
                 //return m;
+		return Message("dummy","dummy");
             }
             break;
         case EXIT:
             //Message m = new Message...
             //return m;
+            return Message("dummy","dummy");	
             break;
         default:
             std::cout<<"Command not found";
+	    return Message("dummy","dummy");	    
             break;
         }
     }
