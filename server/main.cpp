@@ -14,6 +14,7 @@
 #include <cryptopp/rsa.h>
 #include <cryptopp/osrng.h>
 #include "crypto.h"
+#include <cryptopp/hex.h>
 #ifndef byte
 typedef unsigned char byte;
 #endif
@@ -21,7 +22,7 @@ typedef unsigned char byte;
 int main(int argc, char*argv[])
 {
 	CryptoPP::AutoSeededRandomPool prng;
-	byte key[CryptoPP::AES::MAX_KEYLENGTH];
+	//byte key[CryptoPP::AES::MAX_KEYLENGTH];
 	CryptoPP::RSA::PrivateKey pkey;
 	CryptoPP::AutoSeededRandomPool rng;
 
@@ -86,8 +87,8 @@ int main(int argc, char*argv[])
 
 				if(FD_ISSET(sd, &readfs))
 				{
-					char buffer[512];
-					if((read(sd,buffer,511) == 0))
+					char buffer[2048];
+					if((read(sd,buffer,2047) == 0))
 					{
 						auto it = std::find(clients.begin(),clients.end(),s);
 							
@@ -97,13 +98,48 @@ int main(int argc, char*argv[])
 					}
 					else
 					{
+
+
+						if(!s->hasSymmetricKey())
+						{
+
 						//std::cout<<"The message we got was"<<buffer <<std::endl;
 						std::cout<<"length is :"<< strlen(buffer) <<std::endl;
+						std::cout<<buffer<<std::endl;
+						std::string decoded;
+						CryptoPP::StringSource s2(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(decoded)));
 						std::string recovered;
-						CryptoPP::StringSource ss(std::string{buffer},true,
+
+						CryptoPP::StringSource ss(std::string{decoded},true,
 								new CryptoPP::PK_DecryptorFilter(rng,d,new CryptoPP::StringSink(recovered)));
 
-						std::cout<<recovered<<std::endl;
+						//std::cout<<recovered<<std::endl;
+						std::cout<<recovered.length()<<std::endl;
+						s->SetKey(recovered);
+
+						send(sd,"Message got",strlen("Message got"),0);
+
+						memset(buffer,0,2048);
+
+						}
+						else
+						{
+							//CryptoPP::AutoSeededRandomPool temp;
+							//temp.GenerateBlock(s->getKey(),CryptoPP::AES::MAX_KEYLENGTH);
+							MyCrypto m(s->getKey());
+							
+							std::cout<<buffer<<std::endl;
+
+							std::string recieved;
+							CryptoPP::StringSource dec(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(recieved)));
+							std::string ptext = m.decrypt(recieved);
+						
+								
+
+
+							std::cout<<ptext<<std::endl;
+
+						}
 						//Message m = Message::fromString(std::string(buffer));
 						// Itt kell lekezelni az üteneteket... feldolgozni stb...
 
@@ -121,6 +157,7 @@ int main(int argc, char*argv[])
 	}
 	catch(std::exception &e)
 	{
+		std::cout<<e.what()<<std::endl;
 		std::cout<< "caught exception"<<std::endl;
 	}
 	return 0;

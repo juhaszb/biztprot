@@ -8,9 +8,14 @@
 #include <memory>
 #include <unistd.h>
 #include "logger.h"
-
+#include <cryptopp/aes.h>
 
 #include <iostream>
+
+#ifndef byte
+typedef unsigned char byte;
+#endif
+
 
 class Connection
 {
@@ -18,6 +23,9 @@ class Connection
 	char buffer[256];
 	struct sockaddr_in connection; // port and other network related stuff
 	int sockfd; // socket file descriptor
+	bool symmetrickey = false;
+	byte key[CryptoPP::AES::MAX_KEYLENGTH]; 
+
 
 
 	void setsocket(int sock)
@@ -71,7 +79,22 @@ class Connection
 	}
 
 
+	bool hasSymmetricKey()
+	{
+		return symmetrickey;
+	}
 
+	void SetKey(std::string k)
+	{
+		for(int i = 0 ; i < k.length(); i++)
+			key[i] = k [i];
+		symmetrickey = true;
+	}
+
+	byte* getKey()
+	{
+		return key;
+	}
 	~Connection()
 	{
 		close(sockfd);

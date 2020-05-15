@@ -8,6 +8,8 @@
 #include <string.h>
 #include <string>
 #include <unistd.h>
+#include <iostream>
+
 
 class Connection
 {
@@ -24,7 +26,7 @@ public:
 		serv_addr.sin_family = AF_INET;
 		serv_addr.sin_port=htons(18000);
 		
-		if(inet_pton(AF_INET,"192.168.3.151",&serv_addr.sin_addr)<=0)
+		if(inet_pton(AF_INET,"127.0.0.1",&serv_addr.sin_addr)<=0)
 			throw AddressError();	
 		
 		if(connect(sock,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) <0)
@@ -39,6 +41,13 @@ public:
 		send(sock,message.c_str(),strlen(message.c_str()),0);
 	}
 
+	std::string Read()
+	{
+		int n = read(sock,buffer,1024);
+		if(n<0)
+			std::cout<<"Error reading"<<std::endl;
+		return std::string{buffer};
+	}
 
 	~Connection()
 	{
