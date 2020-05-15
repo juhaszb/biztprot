@@ -16,7 +16,6 @@
 #include "crypto.h"
 #include <cryptopp/hex.h>
 #include "parser.h"
-#include <ctime>
 
 #ifndef byte
 typedef unsigned char byte;
@@ -79,10 +78,7 @@ int main(int argc, char*argv[])
 			if(FD_ISSET(master.getsocket(), &readfs))
 			{
 				std::shared_ptr<Connection> newconn = master.Accept();
-				
-				std::time_t now = std::time(nullptr);
-				std::asctime(std::localtime(&now));	
-				newconn->setServerTs(now);	
+				newconn->setServerTs(time());	
 				clients.push_back(newconn);
 
 				std::cout<<"New connection"<<std::endl;
@@ -144,15 +140,9 @@ int main(int argc, char*argv[])
 							
 							Parser p;
 							Message resp = p.parse(Message::fromString(ptext),s);
-						
-							std::string respenc = m.encrypt(resp.toByteStream());
+								
 
-							std::string hexenc;
-							CryptoPP::StringSource(respenc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(hexenc)));
-							
-							send(sd,hexenc.c_str(),strlen(hexenc.c_str()),0);
 
-							
 							std::cout<<resp.toByteStream()<<std::endl;
 
 						}

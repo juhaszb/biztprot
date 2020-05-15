@@ -73,18 +73,60 @@ int main(int argc, char*argv[])
 		//std::cout<<ciphex<<std::endl;
 		c.Send(ciphex);
 		
-		std::cout<<ciphex<<std::endl;
+		//std::cout<<ciphex<<std::endl;
 
 		std::cout<<c.Read()<<std::endl;
-		std::string enc  = mm.encrypt(m.toByteStream());
-	
-		std::string stringsend;
-		CryptoPP::StringSource s3(enc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(stringsend)));
-	
-		std::cout<<stringsend<<std::endl;
 
-		std::cout<<mm.decrypt(enc)<<std::endl;
-		c.Send(stringsend);
+		std::string loginenc = mm.encrypt(m.toByteStream());
+		std::string login;
+		CryptoPP::StringSource(loginenc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(login)));
+
+		c.Send(login);
+		
+		
+
+		std::string loginresp;
+		std::string loginresphex = c.Read();
+	
+		CryptoPP::StringSource(loginresphex,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(loginresp)));
+
+
+		std::string loginrespdecoded = mm.decrypt(loginresp);
+		std::cout<<loginrespdecoded<<std::endl;
+		std::cout<< "The type we got "<<Message::fromString(loginrespdecoded).getType()<<std::endl;
+		if(Message::fromString(loginrespdecoded).getType() == ERROR)
+			return 0;
+		
+
+		while(true){
+		std::string readstring;
+		std::cin>>readstring;
+		Message read = ui.commandcall(readstring);
+		if(read.getType() == ERROR)
+			std::cout<<read.getData()<<std::endl;
+		else if(read.getType() == EXIT)
+			break;
+		else
+		{
+			std::string enc  = mm.encrypt(read.toByteStream());
+	
+			std::string stringsend;
+			CryptoPP::StringSource s3(enc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(stringsend)));
+	
+			std::cout<<stringsend<<std::endl;
+
+			std::cout<<mm.decrypt(enc)<<std::endl;
+			c.Send(stringsend);
+
+			std::string resp = c.Read();
+			std::string respdec;
+
+			CryptoPP::StringSource(resp,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(respdec)));
+
+			std::cout<<mm.decrypt(respdec)<<std::endl;
+			std::cout<<"response"<<resp<<std::endl;
+		}
+		}
 
 	}
 	catch(std::exception& e)

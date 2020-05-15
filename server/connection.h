@@ -25,8 +25,9 @@ class Connection
 	int sockfd; // socket file descriptor
 	bool symmetrickey = false;
 	byte key[CryptoPP::AES::MAX_KEYLENGTH]; 
-
-
+	bool loggedIn = false;
+	unsigned int ServerTs;
+	unsigned int ClientTs;
 
 	void setsocket(int sock)
 	{
@@ -78,6 +79,42 @@ class Connection
 		return sockfd;
 	}
 
+
+	unsigned int GetServerTS() const
+	{
+		return ServerTs;
+	}
+	unsigned int GetClientTS() const
+	{
+		return ClientTs;
+	}
+	void incrementServerTS()
+	{
+		ServerTs++;
+	}
+	void incrementClientTS()
+	{
+		ClientTs++;
+	}
+
+	void  setServerTs( unsigned int time)
+	{
+		ServerTs = time;
+	}
+	void setClientTs(unsigned int time)
+	{
+		ClientTs = time;
+	}
+
+	void Login()
+	{
+		loggedIn = true;
+	}
+
+	bool isloggedin() const 
+	{
+		return loggedIn;
+	}
 
 	bool hasSymmetricKey()
 	{
