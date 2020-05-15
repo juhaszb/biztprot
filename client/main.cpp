@@ -76,7 +76,7 @@ int main(int argc, char*argv[])
 		std::cout<<ciphex<<std::endl;
 
 		std::cout<<c.Read()<<std::endl;
-		std::string enc  = mm.encrypt(std::string{"plaintext i encrypted"});
+		std::string enc  = mm.encrypt(m.toByteStream());
 	
 		std::string stringsend;
 		CryptoPP::StringSource s3(enc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(stringsend)));

@@ -15,6 +15,8 @@
 #include <cryptopp/osrng.h>
 #include "crypto.h"
 #include <cryptopp/hex.h>
+#include "parser.h"
+
 #ifndef byte
 typedef unsigned char byte;
 #endif
@@ -133,11 +135,13 @@ int main(int argc, char*argv[])
 							std::string recieved;
 							CryptoPP::StringSource dec(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(recieved)));
 							std::string ptext = m.decrypt(recieved);
-						
+							
+							Parser p;
+							Message resp = p.parse(Message::fromString(ptext),s);
 								
 
 
-							std::cout<<ptext<<std::endl;
+							std::cout<<resp.toByteStream()<<std::endl;
 
 						}
 						//Message m = Message::fromString(std::string(buffer));

@@ -49,8 +49,8 @@ public:
 
 	//Getters and setter
 
-	std::string getType(){
-		return type;
+	char getType(){
+		return type[0];
 	}
 
 	std::string getData(){
