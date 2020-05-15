@@ -13,5 +13,7 @@
 #define REGISTER '9'
 #define LOGIN 'a'
 #define ERROR 'e'
+#define KEX 'k'
+
 
 #endif

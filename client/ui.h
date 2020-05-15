@@ -37,7 +37,23 @@ int getch() {
     return ch;
 }
 
+std::vector<std::string> split(std::string s,std::string delim)
+		{
+			std::string token;
+			size_t pos;
+	
+			std::vector<std::string> splits; 
 
+			while((pos =  s.find(delim)) != std::string::npos)
+			{
+				token = s.substr(0,pos);
+				splits.push_back(token);
+				s.erase(0,pos+delim.length());
+			}
+			splits.push_back(s);
+
+			return splits;
+		}
 
 
 
@@ -100,11 +116,12 @@ class UICommand
 
 
 
-   Message commandcall(std::string& command) 
+   Message commandcall(std::string command) 
     {
         std::vector<std::string> results;
-        boost::split(results, command, [](char c){return c == ' ';});
+        //boost::split(results, command, [](char c){return c == ' ';});
 
+	results = split(command," ");
         switch (options[results[0]])
         {
         case LOGIN:
@@ -146,6 +163,7 @@ class UICommand
 	    }
         case MKD:
             if(results.size()!=2){
+		std::cout<<results.size() <<std::endl;
                 std::cout<<"Missing or too much operand!";
                 Message m= Message(std::string(1,ERROR),"");
                 return m;

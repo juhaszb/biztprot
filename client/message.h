@@ -35,12 +35,12 @@ public:
 	  while( (pos=msg.find(delimiter)) != std::string::npos)
 	  {
 		token = msg.substr(0,pos);
-		std::cout<< token <<std::endl;
+		//std::cout<< token <<std::endl;
 		tokens.push_back(token);
 		msg.erase(0,pos+delimiter.length());
 	
 	  }
-	  std::cout<<msg<<std::endl;
+	  //std::cout<<msg<<std::endl;
 	  tokens.push_back(msg);
 	  Message m{tokens[0],tokens[1],std::stoi(tokens[2]),std::stoi(tokens[3])};
 	  //Message m{"bla","bla",0,0};

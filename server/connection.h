@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "logger.h"
 #include <cryptopp/aes.h>
-
+#include <filesystem>
 #include <iostream>
 
 #ifndef byte
@@ -28,6 +28,8 @@ class Connection
 	bool loggedIn = false;
 	unsigned int ServerTs;
 	unsigned int ClientTs;
+	std::filesystem::path pwd;
+	std::filesystem::path startingpwd;
 
 	void setsocket(int sock)
 	{
@@ -126,6 +128,23 @@ class Connection
 		for(int i = 0 ; i < k.length(); i++)
 			key[i] = k [i];
 		symmetrickey = true;
+	}
+
+	void setPath(std::filesystem::path p)
+	{
+		if(!loggedIn)
+			startingpwd = p;
+		pwd=p;
+	}
+
+	std::filesystem::path getPath(void)
+	{
+		return pwd;
+	}
+
+	std::filesystem::path getOriginalPath(void)
+	{
+		return startingpwd;
 	}
 
 	byte* getKey()

@@ -11,6 +11,7 @@
 #include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
 #include <cryptopp/osrng.h>
+#include "crypto.h"
 
 class Parser{
 	private:
@@ -105,9 +106,14 @@ class Parser{
 
 						if(hashed == passwhex)
 						{	
-							c->Login();
+							
 							ifstr.close();
 							c->incrementServerTS();
+							std::filesystem::path cpath = std::filesystem::current_path();
+							cpath /= username;
+							c->setPath(cpath);
+							c->Login();
+							std::cout<<"Current pwd"<<cpath<<std::endl;
 							return Message(std::string{1,LOGIN},"Login successfull",c->GetServerTS(),0);
 						}
 						else
@@ -186,6 +192,152 @@ class Parser{
 				c->incrementServerTS();
 				return Message(std::string{1,REGISTER},"REGISTER succeffull",c->GetServerTS(),0);		
 				break;
+			}
+		
+			case GWD:
+			{
+				c->incrementServerTS();
+				return Message(std::string{1,GWD},c->getPath().string(),c->GetServerTS(),0);
+				break;
+			}
+			case MKD:
+			{
+				std::filesystem::path currpath = c->getPath();
+				currpath /= m.getData();
+				if(std::filesystem::exists(currpath))
+				{
+					c->incrementServerTS();
+					return Message(std::string{1,ERROR},"Directory already exists",c->GetServerTS(),0);
+				}
+				std::filesystem::path newdirectory = c->getPath();
+				newdirectory /= m.getData();
+				std::filesystem::create_directory(newdirectory);
+				c->incrementServerTS();
+				return Message(std::string{1,MKD},"Directory successfully created",c->GetServerTS(),0);
+			}
+			case RMD:
+			{
+				std::filesystem::path cpath = c->getPath();
+				cpath /= m.getData();
+				if(std::filesystem::exists(cpath)&& std::filesystem::is_directory(cpath))
+				{
+					std::filesystem::remove(cpath);
+					c->incrementClientTS();
+					return Message(std::string{1,RMD},"Folder deleted",c->GetServerTS(),0);
+				}
+				else
+				{
+					c->incrementServerTS();
+					return Message(std::string{1,ERROR},"Folder doesn't exist or it isnt a folder",c->GetServerTS(),0);
+				}
+			}
+			case CWD:
+			{
+				if(m.getData() == ".." && c->getOriginalPath().parent_path() == std::filesystem::current_path())
+				{
+					c->incrementServerTS();
+					return Message(std::string{1,ERROR},"Cant go higher than your own root folder",c->GetServerTS(),0);
+				}
+				else if(m.getData() != "..")
+				{
+						
+					c->incrementClientTS();
+					std::filesystem::path newpath = c->getPath();
+					newpath /= m.getData();
+					if(std::filesystem::exists(newpath) &&std::filesystem::is_directory(newpath))
+					{
+					c->setPath(newpath);
+
+					return Message(std::string{1,CWD},"New path:"+newpath.string(),c->GetServerTS(),0);
+					}
+					else
+					{
+					return Message(std::string{1,ERROR},"Folder doesnt exist",c->GetServerTS(),0);
+					}
+				}		
+				else if(m.getData() == ".." && c->getOriginalPath().parent_path() != std::filesystem::current_path())
+				{
+					c->incrementClientTS();
+					std::filesystem::path newpath = c->getPath();
+					c->setPath(newpath.parent_path());
+					return Message(std::string{1,CWD},"New path:"+newpath.string(),c->GetServerTS(),0);
+				}
+					
+			}
+			case LST:
+			{
+				std::string files;
+				std::filesystem::path cpath = c->getPath();
+				for(const auto & entry : std::filesystem::directory_iterator(cpath))
+					files = files+entry.path().string()+"\n";
+				c->incrementServerTS();
+				return Message(std::string{1,LST},"Files:\n"+files,c->GetServerTS());
+			}
+			case RMF:
+			{
+				std::filesystem::path cpath = c->getPath();
+				cpath /= m.getData();
+				if(std::filesystem::exists(cpath) &&std::filesystem::is_regular_file(cpath))
+				{
+					std::filesystem::remove(cpath);
+					c->incrementServerTS();
+					return Message(std::string{1,RMF},"File removed",c->GetServerTS());
+				}
+				else
+				{
+					c->incrementServerTS();
+					return Message(std::string{1,ERROR},"File doesn't exist",c->GetServerTS());
+				}
+			}
+			case UPL:
+			{
+
+				std::string filename;
+				int linecount;
+				std::vector<std::string> param= split(m.getData(),";");
+				std::filesystem::path cpath = c->getPath();
+				filename = param[0];
+				linecount = std::stoi(param[1]);
+				cpath /= filename;
+				if(std::filesystem::exists(cpath))
+				{
+					c->incrementServerTS();
+					return Message(std::string{1,ERROR},"File already exists",c->GetServerTS());
+				}
+				else
+				{
+					std::ofstream ofs(cpath);
+					char buffer[2048] = {0};
+					while(linecount > 1)
+					{
+						
+						linecount --;
+						c->incrementServerTS();
+						Message resp(std::string{1,UPL},"Reading linecount",c->GetServerTS());
+						MyCrypto mc(c->getKey());
+
+						std::string resps = mc.encrypt(resp.toByteStream());
+
+						std::string respstring;
+						CryptoPP::StringSource(resps,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(respstring)));
+					
+					
+						send(c->getsocket(),respstring.c_str(),strlen(respstring.c_str()),0);
+
+						read(c->getsocket(),buffer,2048);
+						
+						std::string ciph;
+						CryptoPP::StringSource(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(ciph)));
+
+						std::string plain = mc.decrypt(ciph);	
+
+						ofs.write(plain.c_str(),strlen(plain.c_str()));
+
+					}
+					ofs.close();
+					c->incrementServerTS();
+					return Message(std::string{1,UPL},"File written",c->GetServerTS());
+				}
 			}
 		}
 		c->incrementServerTS();

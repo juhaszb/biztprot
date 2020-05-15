@@ -21,6 +21,8 @@ typedef unsigned char byte;
 
 int main(int argc, char*argv[])
 {
+
+	Connection c;
 	CryptoPP::AutoSeededRandomPool rng;
 	//std::pair<CryptoPP::RSA::PrivateKey,CryptoPP::RSA::PublicKey> keys = generate_rsa_keys();	
 	CryptoPP::RSA::PublicKey pkey;
@@ -35,22 +37,32 @@ int main(int argc, char*argv[])
 	
 
 
+
+
 	std::string plain="";
 	for(int i = 0; i < CryptoPP::AES::MAX_KEYLENGTH ;i ++ )
 	{
 		plain+=key[i];
 	}
 
+	std::string keyinhex;
+	CryptoPP::StringSource(plain,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(keyinhex)));
+
+        Message keym(std::string{1,KEX},keyinhex,c.getclientTS());
+	c.incerementclientTS();
+
 	std::string test="test message";
 
 	CryptoPP::RSAES_OAEP_SHA_Encryptor e(pkey);
 
 
-	CryptoPP::StringSource ss(plain,true,new CryptoPP::PK_EncryptorFilter(rng,e,new CryptoPP::StringSink(cipher)));
+	CryptoPP::StringSource ss(keym.toByteStream(),true,new CryptoPP::PK_EncryptorFilter(rng,e,new CryptoPP::StringSink(cipher)));
 
 	
+
 	std::string ciphex;
         CryptoPP::StringSource s(cipher, true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(ciphex)));	
+
 
 	//std::cout<<cipher<<std::endl;
 	//Message m("ab","baaab",12,25);
@@ -64,13 +76,23 @@ int main(int argc, char*argv[])
 	std::cin >> in;
 	UICommand ui{};
 	Message m = ui.commandcall(in);
+	
 	std::cout <<m.toByteStream() <<std::endl;
 	try{
-		Connection c;
+		
+		
+		
+	
+
+
+
+		m.setTimestamp(c.getclientTS());
+		c.incerementclientTS();
 		//std::cout<<"key is :" <<std::string{reinterpret_cast<char*>(key)}<<std::endl;
 		std::string ciph = mm.encrypt(m.toByteStream());
 		//std::cout<<ciphex.length()<<std::endl;
 		//std::cout<<ciphex<<std::endl;
+		//std::cout<<"length of ciphex"<< ciphex.length()<< std::endl;
 		c.Send(ciphex);
 		
 		//std::cout<<ciphex<<std::endl;
@@ -92,20 +114,26 @@ int main(int argc, char*argv[])
 
 
 		std::string loginrespdecoded = mm.decrypt(loginresp);
-		std::cout<<loginrespdecoded<<std::endl;
-		std::cout<< "The type we got "<<Message::fromString(loginrespdecoded).getType()<<std::endl;
+		//std::cout<<loginrespdecoded<<std::endl;
+		//std::cout<< "The type we got "<<Message::fromString(loginrespdecoded).getType()<<std::endl;
 		if(Message::fromString(loginrespdecoded).getType() == ERROR)
 			return 0;
 		
 
 		while(true){
 		std::string readstring;
-		std::cin>>readstring;
+		//std::cin>>readstring;
+		std::getline(std::cin,readstring);
 		Message read = ui.commandcall(readstring);
 		if(read.getType() == ERROR)
 			std::cout<<read.getData()<<std::endl;
 		else if(read.getType() == EXIT)
 			break;
+		else if(read.getType() == LOGIN || read.getType() == REGISTER)
+		{
+			std::cout <<"You are already logged in!"<<std::endl;
+			break;
+		}
 		else
 		{
 			std::string enc  = mm.encrypt(read.toByteStream());
@@ -113,9 +141,9 @@ int main(int argc, char*argv[])
 			std::string stringsend;
 			CryptoPP::StringSource s3(enc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(stringsend)));
 	
-			std::cout<<stringsend<<std::endl;
+			//std::cout<<stringsend<<std::endl;
 
-			std::cout<<mm.decrypt(enc)<<std::endl;
+			//std::cout<<mm.decrypt(enc)<<std::endl;
 			c.Send(stringsend);
 
 			std::string resp = c.Read();
@@ -123,8 +151,10 @@ int main(int argc, char*argv[])
 
 			CryptoPP::StringSource(resp,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(respdec)));
 
-			std::cout<<mm.decrypt(respdec)<<std::endl;
-			std::cout<<"response"<<resp<<std::endl;
+			//std::cout<<mm.decrypt(respdec)<<std::endl;
+			//std::cout<<"response"<<resp<<std::endl;
+			std::string decrypted = mm.decrypt(respdec);
+			std::cout<<Message::fromString(decrypted).getData()<<std::endl;
 		}
 		}
 

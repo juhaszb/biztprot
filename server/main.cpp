@@ -116,14 +116,27 @@ int main(int argc, char*argv[])
 						std::cout<<buffer<<std::endl;
 						std::string decoded;
 						CryptoPP::StringSource s2(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(decoded)));
-						std::string recovered;
+						
+						std::string rsadecr;
+						CryptoPP::StringSource(decoded,true,new CryptoPP::PK_DecryptorFilter(rng,d,new CryptoPP::StringSink(rsadecr)));
 
-						CryptoPP::StringSource ss(std::string{decoded},true,
-								new CryptoPP::PK_DecryptorFilter(rng,d,new CryptoPP::StringSink(recovered)));
+						//std::cout<<decoded <<std::endl;
+
+						std::string keyinhex = Message::fromString(rsadecr).getData();
+						std::string key;
+						CryptoPP::StringSource(keyinhex,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(key)));
+
+						//std::string recovered;
+
+						//CryptoPP::StringSource ss(std::string{key},true,
+				//				new CryptoPP::PK_DecryptorFilter(rng,d,new CryptoPP::StringSink(recovered)));
 
 						//std::cout<<recovered<<std::endl;
-						std::cout<<recovered.length()<<std::endl;
-						s->SetKey(recovered);
+						std::cout<<rsadecr.length()<<std::endl;
+						s->SetKey(key);
+						s->setClientTs(Message::fromString(rsadecr).getTimestamp());
+						
+						
 
 						send(sd,"Message got",strlen("Message got"),0);
 
@@ -132,16 +145,20 @@ int main(int argc, char*argv[])
 						}
 						else
 						{
+							
 							//CryptoPP::AutoSeededRandomPool temp;
 							//temp.GenerateBlock(s->getKey(),CryptoPP::AES::MAX_KEYLENGTH);
 							MyCrypto m(s->getKey());
-							
-							std::cout<<buffer<<std::endl;
+							//std::cout <<"Login part"<<std::endl;	
+							//std::cout<<buffer<<std::endl;
 
 							std::string recieved;
 							CryptoPP::StringSource dec(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(recieved)));
 							std::string ptext = m.decrypt(recieved);
 							
+							if((Message::fromString(ptext).getType() == REGISTER || Message::fromString(ptext).getType() == LOGIN )	&& s->isloggedin())
+								continue;
+
 							Parser p;
 							Message resp = p.parse(Message::fromString(ptext),s);
 						
@@ -151,6 +168,7 @@ int main(int argc, char*argv[])
 							CryptoPP::StringSource(respenc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(hexenc)));
 							
 							send(sd,hexenc.c_str(),strlen(hexenc.c_str()),0);
+							memset(buffer,0,2048);
 
 							
 							std::cout<<resp.toByteStream()<<std::endl;
