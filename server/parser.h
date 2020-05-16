@@ -329,7 +329,7 @@ class Parser{
 			}
 			case CWD:
 			{
-				if(m.getData() == ".." && c->getOriginalPath().parent_path() == c->getPath().parent_path())
+				if(m.getData() == ".." && c->getPath().parent_path() == std::filesystem::current_path())
 				{
 					c->incrementServerTS();
 					return Message(std::string{ERROR},"Cant go higher than your own root folder",c->GetServerTS(),0);

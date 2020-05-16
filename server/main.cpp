@@ -32,16 +32,19 @@ int main(int argc, char*argv[])
 	CryptoPP::InvertibleRSAFunction params;
 	params.GenerateRandomWithKeySize(rng,4096);
 
-	LoadPrivateKey("private.key",pkey);
-
-	CryptoPP::RSAES_OAEP_SHA_Decryptor d(pkey);
-
-
+	
 	if(!std::filesystem::exists("public.key") || !std::filesystem::exists("private.key"))
 	{
 		generate_rsa_tofile("public.key","private.key");
 		Logger::getInstance()->Log("Generating new keys, because one of the keys is missing");
 	}
+
+	LoadPrivateKey("private.key",pkey);
+
+	CryptoPP::RSAES_OAEP_SHA_Decryptor d(pkey);
+
+
+
 	try
 	{	
 		Logger::getInstance()->Log("Ez tehat mukodik");
