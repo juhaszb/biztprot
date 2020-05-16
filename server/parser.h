@@ -4,6 +4,7 @@
 #include "messagetype.h"
 #include "connection.h"
 #include <filesystem>
+#include <iterator>
 #include <vector>
 #include <cryptopp/secblock.h>
 #include <cryptopp/scrypt.h>
@@ -12,6 +13,9 @@
 #include <cryptopp/hex.h>
 #include <cryptopp/osrng.h>
 #include "crypto.h"
+
+
+int currentline = 0;
 
 class Parser{
 	private:
@@ -31,6 +35,95 @@ class Parser{
 			splits.push_back(s);
 
 			return splits;
+		}
+
+
+		Message Upload(Message m, std::shared_ptr<Connection> c)
+		{
+			if(!c->isUploading())
+			{
+				std::vector<std::string> spl = split(m.getData(),";");
+				std::filesystem::path cpath = c->getPath();
+				cpath /= spl[0];
+				if(std::filesystem::exists(cpath))
+				{
+					c->incrementServerTS();
+					return Message({ERROR},"File already exists",c->GetServerTS());
+				}
+				c->setLineCount(std::stoi(spl[1]));
+				c->setfilename(spl[0]);
+				c->toggleUploading();
+				c->incrementServerTS();
+				return Message({UPL},"Upload started",c->GetServerTS());
+			}
+			else
+			{
+				std::filesystem::path cpath = c->getPath();
+				cpath /= c->getfilename();
+				std::ofstream ofs(cpath,std::ios::app);
+				std::string decoded;
+				CryptoPP::StringSource(m.getData(),true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(decoded)));
+				ofs.write(decoded.c_str(),strlen(decoded.c_str()));
+				ofs.write("\n",1);
+				ofs.close();
+				c->setLineCount(c->getLineCount()-1);
+				if(c->getLineCount() == 0)
+				{
+					c->toggleUploading();
+					c->incrementServerTS();
+					return Message({UPL},"File uploaded",c->GetServerTS(),0);
+				}
+				c->incrementServerTS();
+				return Message({UPL},"Upload in progress",c->GetServerTS(),0);
+			}
+		}
+
+
+		Message Download(Message m, std::shared_ptr<Connection> c)
+		{
+			if(!c->isDownloading())
+			{
+				std::filesystem::path cpath = c->getPath();
+				cpath /= m.getData();
+				if(!std::filesystem::exists(cpath))
+				{
+					c->incrementServerTS();
+					return Message({ERROR},"File doesnt exist on the server",c->GetServerTS());
+				}
+				std::ifstream inf(cpath);
+				int linecount = std::count(std::istreambuf_iterator<char>(inf),std::istreambuf_iterator<char>(),'\n');
+				c->setLineCount(linecount);
+				c->setfilename(m.getData());
+				c->toggleDownloading();
+				c->incrementServerTS();
+				return Message(std::string{DNL},m.getData()+";"+std::to_string(linecount),c->GetServerTS());
+			}
+			else
+			{
+				if(c->getLineCount() == 0)
+				{
+					c->toggleDownloading();
+					currentline = 0;
+					c->incrementServerTS();
+					return Message(std::string{DNL},"Download complete",c->GetServerTS());
+				}
+				std::filesystem::path cpath = c->getPath();
+				cpath /= c->getfilename();
+
+				std::ifstream infile(cpath);
+				std::string skip;
+				for(int i=0; i< currentline ; i++)
+				{
+					std::getline(infile,skip);
+				}
+				std::getline(infile,skip);
+				c->incrementServerTS();
+				std::string encode;
+				currentline++;
+				c->setLineCount(c->getLineCount()-1);
+				CryptoPP::StringSource(skip,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(encode)));
+				return Message(std::string{DNL},encode,c->GetServerTS());
+			}
 		}
 		
 
@@ -291,13 +384,17 @@ class Parser{
 			}
 			case UPL:
 			{
+				return Upload(m,c);
 
-				std::string filename;
+				/*std::string filename;
 				int linecount;
 				std::vector<std::string> param= split(m.getData(),";");
 				std::filesystem::path cpath = c->getPath();
 				filename = param[0];
+				
+				if(param.size() > 1)
 				linecount = std::stoi(param[1]);
+
 				cpath /= filename;
 				if(std::filesystem::exists(cpath))
 				{
@@ -346,7 +443,11 @@ class Parser{
 					ofs.close();
 					c->incrementServerTS();
 					return Message(std::string{UPL},"File written",c->GetServerTS());
-				}
+				}*/
+			}
+			case DNL:
+			{
+				return Download(m,c);
 			}
 		}
 		c->incrementServerTS();

@@ -63,6 +63,13 @@ void Sendfile(Connection* c, Message m)
 	std::getline(readf,line);
 	std::string resp = c->Read();
 	Message res = DecryptAndDecode(resp);
+	if(res.getType() == ERROR)
+	{
+		std::cout<<"Error with uploading... stopping"<<std::endl;
+		std::cout<<res.getData()<<std::endl;
+		readf.close();
+		return;
+	}
 	std::cout<<"UPL response "<<res.getData()<<std::endl;
 	std::string linehex;
 	
@@ -73,10 +80,64 @@ void Sendfile(Connection* c, Message m)
 	c->Send(sendenc);
 
 	}
+	std::string resp = c->Read();
+	std::cout<<DecryptAndDecode(resp).getData()<<std::endl;
+	readf.close();
 
 }
 void DownloadFile(Connection * c, Message m )
 {
+	if(std::filesystem::exists(m.getData()))
+	{
+		std::cout<<"File already exists"<<std::endl;
+		return;
+	}
+	//std::ofstream ofs(m.getData());
+
+	c->incerementclientTS();
+
+	c->Send(EncryptAndEncode(Message(std::string{DNL},m.getData(),c->getclientTS())));
+
+	std::string start = c->Read();
+	Message resp= DecryptAndDecode(start);
+	if(resp.getType() == ERROR)
+	{
+		std::cout<<"Something happened with downloading file"<<std::endl;
+		return;
+	}
+	std::cout<<"First response from server:"<<resp.toByteStream()   <<std::endl;
+	std::vector<std::string> spl = split(resp.getData(),";");
+	int linecount = std::stoi(spl[1]);
+	std::ofstream ofs(spl[0]);
+	for(int i = 0 ; i<linecount ; i++)
+	{
+
+		c->incerementclientTS();
+		c->Send(EncryptAndEncode(Message(std::string{DNL},"DNL",c->getclientTS())));
+
+		std::string encrepl = c->Read();
+		Message decrep = DecryptAndDecode(encrepl);
+		if(decrep.getType() == ERROR)
+		{
+			std::cout<<"There was some error";
+			ofs.close();
+			return;
+		}
+		std::string decrepnohex;
+		CryptoPP::StringSource(decrep.getData(),true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(decrepnohex)));
+		ofs.write(decrepnohex.c_str(),strlen(decrepnohex.c_str()));
+		ofs.write("\n",1);
+
+	}
+	c->incerementclientTS();
+	c->Send(EncryptAndEncode(Message(std::string{DNL},"DONE",c->getclientTS())));
+	ofs.close();
+	std::string ressp = c->Read();
+	std::cout<<DecryptAndDecode(ressp).getData()<<std::endl;
+	
+	//TODO: split... get linecount... for while linecount >0 read and send resp ... 
+
+
 }
 
 int main(int argc, char*argv[])
@@ -199,6 +260,10 @@ int main(int argc, char*argv[])
 			if(read.getType() == UPL)
 			{
 				Sendfile(&c,read);
+			}
+			else if(read.getType() == DNL)
+			{
+				DownloadFile(&c,read);
 			}
 			else
 			{

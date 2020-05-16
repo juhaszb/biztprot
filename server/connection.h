@@ -31,6 +31,13 @@ class Connection
 	std::filesystem::path pwd;
 	std::filesystem::path startingpwd;
 
+	bool uploading= false;
+	bool downloading = false;
+
+	int linecount;
+
+	std::string filename; 
+
 	void setsocket(int sock)
 	{
 		sockfd = sock;
@@ -156,6 +163,44 @@ class Connection
 		close(sockfd);
 	}
 	
+
+	bool isDownloading()
+	{
+		return downloading;
+	}
+	bool isUploading()
+	{
+		return uploading;
+	}
+
+	void toggleDownloading()
+	{
+		downloading = true;
+	}
+	void toggleUploading()
+	{
+		uploading = true;
+	}
+
+	void setLineCount(int lc)
+	{
+		linecount = lc;
+	}
+	int getLineCount()
+	{
+		return linecount;
+	}
+
+	std::string getfilename()
+	{
+		return filename;
+	}
+
+	void setfilename(std::string fil)
+	{
+		filename = fil;
+	}
+
 };
 
 #endif	
