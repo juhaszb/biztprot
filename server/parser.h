@@ -50,7 +50,7 @@ class Parser{
 				if(spl.size() != 2 )
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"Error with data length",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Error with data length",c->GetServerTS(),0);
 				}
 				std::string username = spl[0];
 				std::string password = spl[1];
@@ -59,7 +59,7 @@ class Parser{
 				if(!std::filesystem::exists(username))
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"Error with username or password",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Error with username or password",c->GetServerTS(),0);
 				}
 				std::ifstream ifstr("users.txt",std::ios::in);
 				
@@ -114,7 +114,7 @@ class Parser{
 							c->setPath(cpath);
 							c->Login();
 							std::cout<<"Current pwd"<<cpath<<std::endl;
-							return Message(std::string{1,LOGIN},"Login successfull",c->GetServerTS(),0);
+							return Message(std::string{LOGIN},"Login successfull",c->GetServerTS(),0);
 						}
 						else
 						{
@@ -122,7 +122,7 @@ class Parser{
 							std::cout<<"Hashed value is" <<hashed<<std::endl;
 							std::cout<<"Calculated value is"<<passwhex<<std::endl;
 							c->incrementServerTS();
-							return Message(std::string{1,ERROR},"Error with password",c->GetServerTS(),0);
+							return Message(std::string{ERROR},"Error with password",c->GetServerTS(),0);
 						}
 					}
 				}
@@ -136,7 +136,7 @@ class Parser{
 				if(spl.size() != 2)
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"Error with data length",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Error with data length",c->GetServerTS(),0);
 				}
 				std::string username = spl[0];
 				std::string password = spl[1];
@@ -145,7 +145,7 @@ class Parser{
 				if(std::filesystem::exists(username))
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"Username already exists",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Username already exists",c->GetServerTS(),0);
 				}
 				std::filesystem::create_directory(username);
 
@@ -190,14 +190,14 @@ class Parser{
 				
 				outf.close();
 				c->incrementServerTS();
-				return Message(std::string{1,REGISTER},"REGISTER succeffull",c->GetServerTS(),0);		
+				return Message(std::string{REGISTER},"REGISTER succeffull",c->GetServerTS(),0);		
 				break;
 			}
 		
 			case GWD:
 			{
 				c->incrementServerTS();
-				return Message(std::string{1,GWD},c->getPath().string(),c->GetServerTS(),0);
+				return Message(std::string{GWD},c->getPath().string(),c->GetServerTS(),0);
 				break;
 			}
 			case MKD:
@@ -207,13 +207,13 @@ class Parser{
 				if(std::filesystem::exists(currpath))
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"Directory already exists",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Directory already exists",c->GetServerTS(),0);
 				}
 				std::filesystem::path newdirectory = c->getPath();
 				newdirectory /= m.getData();
 				std::filesystem::create_directory(newdirectory);
 				c->incrementServerTS();
-				return Message(std::string{1,MKD},"Directory successfully created",c->GetServerTS(),0);
+				return Message(std::string{MKD},"Directory successfully created",c->GetServerTS(),0);
 			}
 			case RMD:
 			{
@@ -223,12 +223,12 @@ class Parser{
 				{
 					std::filesystem::remove(cpath);
 					c->incrementClientTS();
-					return Message(std::string{1,RMD},"Folder deleted",c->GetServerTS(),0);
+					return Message(std::string{RMD},"Folder deleted",c->GetServerTS(),0);
 				}
 				else
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"Folder doesn't exist or it isnt a folder",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Folder doesn't exist or it isnt a folder",c->GetServerTS(),0);
 				}
 			}
 			case CWD:
@@ -236,7 +236,7 @@ class Parser{
 				if(m.getData() == ".." && c->getOriginalPath().parent_path() == std::filesystem::current_path())
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"Cant go higher than your own root folder",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Cant go higher than your own root folder",c->GetServerTS(),0);
 				}
 				else if(m.getData() != "..")
 				{
@@ -248,11 +248,11 @@ class Parser{
 					{
 					c->setPath(newpath);
 
-					return Message(std::string{1,CWD},"New path:"+newpath.string(),c->GetServerTS(),0);
+					return Message(std::string{CWD},"New path:"+newpath.string(),c->GetServerTS(),0);
 					}
 					else
 					{
-					return Message(std::string{1,ERROR},"Folder doesnt exist",c->GetServerTS(),0);
+					return Message(std::string{ERROR},"Folder doesnt exist",c->GetServerTS(),0);
 					}
 				}		
 				else if(m.getData() == ".." && c->getOriginalPath().parent_path() != std::filesystem::current_path())
@@ -260,7 +260,7 @@ class Parser{
 					c->incrementClientTS();
 					std::filesystem::path newpath = c->getPath();
 					c->setPath(newpath.parent_path());
-					return Message(std::string{1,CWD},"New path:"+newpath.string(),c->GetServerTS(),0);
+					return Message(std::string{CWD},"New path:"+newpath.string(),c->GetServerTS(),0);
 				}
 					
 			}
@@ -271,7 +271,7 @@ class Parser{
 				for(const auto & entry : std::filesystem::directory_iterator(cpath))
 					files = files+entry.path().string()+"\n";
 				c->incrementServerTS();
-				return Message(std::string{1,LST},"Files:\n"+files,c->GetServerTS());
+				return Message(std::string{LST},"Files:\n"+files,c->GetServerTS());
 			}
 			case RMF:
 			{
@@ -281,12 +281,12 @@ class Parser{
 				{
 					std::filesystem::remove(cpath);
 					c->incrementServerTS();
-					return Message(std::string{1,RMF},"File removed",c->GetServerTS());
+					return Message(std::string{RMF},"File removed",c->GetServerTS());
 				}
 				else
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"File doesn't exist",c->GetServerTS());
+					return Message(std::string{ERROR},"File doesn't exist",c->GetServerTS());
 				}
 			}
 			case UPL:
@@ -302,7 +302,7 @@ class Parser{
 				if(std::filesystem::exists(cpath))
 				{
 					c->incrementServerTS();
-					return Message(std::string{1,ERROR},"File already exists",c->GetServerTS());
+					return Message(std::string{ERROR},"File already exists",c->GetServerTS());
 				}
 				else
 				{
@@ -313,7 +313,7 @@ class Parser{
 						
 						linecount --;
 						c->incrementServerTS();
-						Message resp(std::string{1,UPL},"Reading linecount",c->GetServerTS());
+						Message resp(std::string{UPL},"Reading linecount",c->GetServerTS());
 						MyCrypto mc(c->getKey());
 
 						std::string resps = mc.encrypt(resp.toByteStream());
@@ -324,24 +324,33 @@ class Parser{
 					
 						send(c->getsocket(),respstring.c_str(),strlen(respstring.c_str()),0);
 
+						memset(buffer,0,2048);
 						read(c->getsocket(),buffer,2048);
 						
 						std::string ciph;
 						CryptoPP::StringSource(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(ciph)));
 
-						std::string plain = mc.decrypt(ciph);	
+						std::string plain = mc.decrypt(ciph);
 
-						ofs.write(plain.c_str(),strlen(plain.c_str()));
+						std::string messhex = Message::fromString(plain).getData();
+						std::string messplain;
+						CryptoPP::StringSource(messhex,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(messplain)));
+
+
+
+						ofs.write(messplain.c_str(),strlen(messplain.c_str()));
+						ofs.write("\n",1);
+
 
 					}
 					ofs.close();
 					c->incrementServerTS();
-					return Message(std::string{1,UPL},"File written",c->GetServerTS());
+					return Message(std::string{UPL},"File written",c->GetServerTS());
 				}
 			}
 		}
 		c->incrementServerTS();
-		return Message(std::string{1,ERROR},"Unkown command",c->GetServerTS(),0);
+		return Message(std::string{ERROR},"Unkown command",c->GetServerTS(),0);
 
 	}
 

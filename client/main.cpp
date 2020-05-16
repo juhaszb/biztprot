@@ -5,19 +5,79 @@
 #include <exception>
 #include <iostream>
 #include "generate.h"
+#include <fstream>
 #include "connection.h"
+#include <iterator>
 #include <string>
 #include "message.h"
 #include "ui.h"
 #include "crypto.h"
+#include <filesystem>
 #include <cryptopp/hex.h>
 
 #ifndef byte
 typedef unsigned char byte; 
 #endif
 
+byte key[CryptoPP::AES::MAX_KEYLENGTH];
+std::string EncryptAndEncode(Message m)
+{
+	std::string enc;
+	MyCrypto mc(key);
+	enc = mc.encrypt(m.toByteStream());
+	std::string hex;
+	CryptoPP::StringSource(enc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(hex)));
+	return hex;
+}
 
 
+Message DecryptAndDecode(std::string hex)
+{
+	std::string dec;
+	CryptoPP::StringSource(hex,true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(dec)));
+	MyCrypto mc(key);
+	std::string plain = mc.decrypt(dec);
+	return Message::fromString(plain);
+}
+
+
+void Sendfile(Connection* c, Message m)
+{
+	if(!std::filesystem::exists(m.getData()) || !std::filesystem::is_regular_file(m.getData()))
+	{
+		std::cout<<m.getData() <<std::endl;
+		std::cout<<"File doesnt exist or isnt a regular file"<<std::endl;
+		return;
+	}
+		std::ifstream inf{m.getData()};
+	int linecount = std::count(std::istreambuf_iterator<char>(inf),std::istreambuf_iterator<char>(),'\n');
+	inf.close();
+	
+	std::ifstream readf{m.getData()};
+	c->incerementclientTS();
+	std::string enc = EncryptAndEncode(Message(std::string{UPL},m.getData()+";"+std::to_string(linecount),c->getclientTS()));
+	c->Send(enc);
+	for(int i = 0; i< linecount; i++)
+	{
+	std::string line;
+	std::getline(readf,line);
+	std::string resp = c->Read();
+	Message res = DecryptAndDecode(resp);
+	std::cout<<"UPL response "<<res.getData()<<std::endl;
+	std::string linehex;
+	
+	CryptoPP::StringSource(line,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(linehex)));
+	c->incerementclientTS();	
+	Message sends(std::string{UPL},linehex,c->getclientTS());
+	std::string sendenc = EncryptAndEncode(sends);
+	c->Send(sendenc);
+
+	}
+
+}
+void DownloadFile(Connection * c, Message m )
+{
+}
 
 int main(int argc, char*argv[])
 {
@@ -31,7 +91,7 @@ int main(int argc, char*argv[])
 	std::string cipher;
 
 	CryptoPP::AutoSeededRandomPool prng;
-	byte key[CryptoPP::AES::MAX_KEYLENGTH];
+	
 	prng.GenerateBlock(key,CryptoPP::AES::MAX_KEYLENGTH);
 	MyCrypto mm(key);
 	
@@ -123,7 +183,7 @@ int main(int argc, char*argv[])
 		while(true){
 		std::string readstring;
 		//std::cin>>readstring;
-		std::getline(std::cin,readstring);
+		std::getline(std::cin,readstring);	
 		Message read = ui.commandcall(readstring);
 		if(read.getType() == ERROR)
 			std::cout<<read.getData()<<std::endl;
@@ -132,10 +192,17 @@ int main(int argc, char*argv[])
 		else if(read.getType() == LOGIN || read.getType() == REGISTER)
 		{
 			std::cout <<"You are already logged in!"<<std::endl;
-			break;
+			continue;
 		}
 		else
 		{
+			if(read.getType() == UPL)
+			{
+				Sendfile(&c,read);
+			}
+			else
+			{
+			//std::cout <<read.getType() <<std::endl;
 			std::string enc  = mm.encrypt(read.toByteStream());
 	
 			std::string stringsend;
@@ -155,6 +222,7 @@ int main(int argc, char*argv[])
 			//std::cout<<"response"<<resp<<std::endl;
 			std::string decrypted = mm.decrypt(respdec);
 			std::cout<<Message::fromString(decrypted).getData()<<std::endl;
+			}
 		}
 		}
 

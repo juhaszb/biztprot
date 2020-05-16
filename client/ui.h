@@ -218,7 +218,8 @@ class UICommand
             else{
                 //Message m = new Message...
                 //return m;
-	        return Message("dummy","dummy");
+
+	        return Message(std::string{UPL},results[1]);
             }
 	    }
             break;
