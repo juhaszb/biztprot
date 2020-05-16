@@ -280,7 +280,10 @@ class Parser{
 				outf.write(to_write.c_str(),strlen(to_write.c_str()));		
 				
 				c->Login();
-				
+				std::filesystem::path cpath = std::filesystem::current_path();
+				cpath /= username;
+				c->setPath(cpath);
+
 				outf.close();
 				c->incrementServerTS();
 				return Message(std::string{REGISTER},"REGISTER succeffull",c->GetServerTS(),0);		
@@ -326,7 +329,7 @@ class Parser{
 			}
 			case CWD:
 			{
-				if(m.getData() == ".." && c->getOriginalPath().parent_path() == std::filesystem::current_path())
+				if(m.getData() == ".." && c->getOriginalPath().parent_path() == c->getPath().parent_path())
 				{
 					c->incrementServerTS();
 					return Message(std::string{ERROR},"Cant go higher than your own root folder",c->GetServerTS(),0);
@@ -348,12 +351,12 @@ class Parser{
 					return Message(std::string{ERROR},"Folder doesnt exist",c->GetServerTS(),0);
 					}
 				}		
-				else if(m.getData() == ".." && c->getOriginalPath().parent_path() != std::filesystem::current_path())
+				else if(m.getData() == ".." && c->getOriginalPath().parent_path() != c->getPath().parent_path())
 				{
 					c->incrementClientTS();
 					std::filesystem::path newpath = c->getPath();
 					c->setPath(newpath.parent_path());
-					return Message(std::string{CWD},"New path:"+newpath.string(),c->GetServerTS(),0);
+					return Message(std::string{CWD},"New path:"+newpath.parent_path().string(),c->GetServerTS(),0);
 				}
 					
 			}
