@@ -136,6 +136,8 @@ class Parser{
 
 	Message parse(Message m, std::shared_ptr<Connection> c){
 		if(c->GetClientTS() > m.getTimestamp()){ //checking TS 
+			std::cout<<"Client ts"<<c->GetClientTS() <<std::endl;
+			std::cout<<"TS we got:"<<m.getTimestamp()<<std::endl;
 			return Message(std::string{ERROR}, "Wrong timestamp",c->GetServerTS(), 0);
 		}else{
 			c->setClientTs(m.getTimestamp());

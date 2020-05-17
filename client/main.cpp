@@ -285,6 +285,8 @@ int main(int argc, char*argv[])
 			}
 			else
 			{
+			c.incerementclientTS();
+			read.setTimestamp(c.getclientTS());
 			//std::cout <<read.getType() <<std::endl;
 			std::string enc  = mm.encrypt(read.toByteStream());
 	
