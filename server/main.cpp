@@ -113,6 +113,7 @@ int main(int argc, char*argv[])
 
 						if(!s->hasSymmetricKey())
 						{
+						
 
 						//std::cout<<"The message we got was"<<buffer <<std::endl;
 						std::cout<<"length is :"<< strlen(buffer) <<std::endl;

@@ -135,7 +135,12 @@ class Parser{
 	
 
 	Message parse(Message m, std::shared_ptr<Connection> c){
-		switch(m.getType())
+		if(c->GetClientTS() > m.getTimestamp()){ //checking TS 
+			return Message(std::string{ERROR}, "Wrong timestamp",c->GetServerTS(), 0);
+		}else{
+			c->setClientTs(m.getTimestamp());
+		}
+		switch(m.getType()) //switching on msg types
 		{
 			case LOGIN:
 			{
