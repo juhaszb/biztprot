@@ -22,7 +22,7 @@ private:
 	unsigned int serverTS;
 
 public:
-	Connection()
+	Connection(unsigned int portnum,const char* address)
 	{
 		std::time_t now = std::time(nullptr);
 		std::asctime(std::localtime(&now));
@@ -33,9 +33,9 @@ public:
 		if(sock <0)
 			throw SockFdFailed();
 		serv_addr.sin_family = AF_INET;
-		serv_addr.sin_port=htons(18000);
+		serv_addr.sin_port=htons(portnum);
 		
-		if(inet_pton(AF_INET,"127.0.0.1",&serv_addr.sin_addr)<=0)
+		if(inet_pton(AF_INET,address,&serv_addr.sin_addr)<=0)
 			throw AddressError();	
 		
 		if(connect(sock,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) <0)

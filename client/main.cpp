@@ -143,7 +143,25 @@ void DownloadFile(Connection * c, Message m )
 int main(int argc, char*argv[])
 {
 
-	Connection c;
+	if(argc < 3){
+		std::cout << "Not enough arguments provided, needed arguments are portnumber and IP address!" << std::endl;
+		std::exit(1);
+	}
+
+	int portnum;
+	std::string address;
+
+	try{
+	portnum = atoi(argv[1]);
+	address = argv[2];
+	}
+	catch(std::exception& e){
+		std::cout << "Exception caught: " << e.what() << std::endl;
+		std::cout << "Provided arguments: 1.: Portnum: " << argv[1] << " 2.: Address: " << argv[2] << std::endl;
+		std::exit(1);
+	}
+	
+	Connection c(portnum, address.c_str());
 	CryptoPP::AutoSeededRandomPool rng;
 	//std::pair<CryptoPP::RSA::PrivateKey,CryptoPP::RSA::PublicKey> keys = generate_rsa_keys();	
 	CryptoPP::RSA::PublicKey pkey;
