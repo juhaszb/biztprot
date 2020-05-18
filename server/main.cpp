@@ -153,7 +153,7 @@ int main(int argc, char*argv[])
 						//std::cout<<recovered<<std::endl;
 						//std::cout<<rsadecr.length()<<std::endl;
 						s->SetKey(key);
-						Logger::getInstance()->Log("Key exchange message got from socket"+std::to_string(s->getsocket()));
+						Logger::getInstance()->Log("Key exchange message got from socket:"+std::to_string(s->getsocket()));
 						s->setClientTs(Message::fromString(rsadecr).getTimestamp());
 						
 						
