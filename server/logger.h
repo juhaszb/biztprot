@@ -1,13 +1,13 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
+#include <chrono>
 #include <memory>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cstring>
 #include <mutex>
-
 
 
 class Logger
@@ -42,8 +42,15 @@ public:
 
 	void Log(const std::string& log) 
 	{
+
 		std::lock_guard<std::mutex> guard(log_mutex);
-		file <<  log <<std::endl;
+		{
+			std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+			std::string s(30,'\0');
+			std::strftime(&s[0],s.size(),"%Y-%m-%d %H:%M:%S", std::localtime(&now));
+		file <<s << log <<std::endl;
+
+		}
 	}
 
 

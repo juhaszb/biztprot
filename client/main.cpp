@@ -190,7 +190,7 @@ int main(int argc, char*argv[])
         Message keym(std::string{1,KEX},keyinhex,c.getclientTS());
 	c.incerementclientTS();
 
-	std::string test="test message";
+	//std::string test="test message";
 
 	CryptoPP::RSAES_OAEP_SHA_Encryptor e(pkey);
 
@@ -216,7 +216,7 @@ int main(int argc, char*argv[])
 	UICommand ui{};
 	Message m = ui.commandcall(in);
 	
-	std::cout <<m.toByteStream() <<std::endl;
+	//std::cout <<m.toByteStream() <<std::endl;
 	try{
 		
 		
@@ -236,7 +236,8 @@ int main(int argc, char*argv[])
 		
 		//std::cout<<ciphex<<std::endl;
 
-		std::cout<<c.Read()<<std::endl;
+		c.Read();
+		//std::cout<<c.Read()<<std::endl;
 
 		std::string loginenc = mm.encrypt(m.toByteStream());
 		std::string login;
@@ -257,6 +258,8 @@ int main(int argc, char*argv[])
 		//std::cout<< "The type we got "<<Message::fromString(loginrespdecoded).getType()<<std::endl;
 		if(Message::fromString(loginrespdecoded).getType() == ERROR)
 			return 0;
+		else
+			std::cout<<"Successfull login or register! Welcome"<<std::endl;
 		
 
 		while(true){

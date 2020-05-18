@@ -136,8 +136,8 @@ class Parser{
 
 	Message parse(Message m, std::shared_ptr<Connection> c){
 		if(c->GetClientTS() > m.getTimestamp()){ //checking TS 
-			std::cout<<"Client ts"<<c->GetClientTS() <<std::endl;
-			std::cout<<"TS we got:"<<m.getTimestamp()<<std::endl;
+			//std::cout<<"Client ts"<<c->GetClientTS() <<std::endl;
+			//std::cout<<"TS we got:"<<m.getTimestamp()<<std::endl;
 			return Message(std::string{ERROR}, "Wrong timestamp",c->GetServerTS(), 0);
 		}else{
 			c->setClientTs(m.getTimestamp());
@@ -177,7 +177,7 @@ class Parser{
 						
 						std::string sal;
 
-						std::cout<<"sp length:" <<sp[1].size() <<std::endl;	
+						//std::cout<<"sp length:" <<sp[1].size() <<std::endl;	
 						CryptoPP::StringSource(sp[1],true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(sal)));
 
 						
@@ -190,8 +190,8 @@ class Parser{
 
 						std::string calcsalt;
 						CryptoPP::StringSource(st,64,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(calcsalt)));
-						std::cout<<"The calculated salt"<<calcsalt<<std::endl;
-						std::cout <<"The password we got"<<password<<std::endl;
+						//std::cout<<"The calculated salt"<<calcsalt<<std::endl;
+						//std::cout <<"The password we got"<<password<<std::endl;
 
 						CryptoPP::Scrypt scrypt;
 						scrypt.DeriveKey(passw,passw.size(),(const unsigned char*)&password[0],password.size(),st,st.size(),1024,8,16);
@@ -202,7 +202,7 @@ class Parser{
 						
 						CryptoPP::StringSource(passw,64,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(passwhex)));
 
-						std::cout <<"The salt read in:" <<salt << std::endl;
+						//std::cout <<"The salt read in:" <<salt << std::endl;
 
 						if(hashed == passwhex)
 						{	
@@ -213,14 +213,14 @@ class Parser{
 							cpath /= username;
 							c->setPath(cpath);
 							c->Login();
-							std::cout<<"Current pwd"<<cpath<<std::endl;
+							//std::cout<<"Current pwd"<<cpath<<std::endl;
 							return Message(std::string{LOGIN},"Login successfull",c->GetServerTS(),0);
 						}
 						else
 						{
 							ifstr.close();
-							std::cout<<"Hashed value is" <<hashed<<std::endl;
-							std::cout<<"Calculated value is"<<passwhex<<std::endl;
+							//std::cout<<"Hashed value is" <<hashed<<std::endl;
+							//std::cout<<"Calculated value is"<<passwhex<<std::endl;
 							c->incrementServerTS();
 							return Message(std::string{ERROR},"Error with password",c->GetServerTS(),0);
 						}
@@ -275,12 +275,12 @@ class Parser{
 				std::string phs;
 				CryptoPP::StringSource(der,16,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(phs)));
 
-				std::cout<<"The hash: "<< phs<<std::endl;
-				std::cout<<"the password we save:" <<password<<std::endl;
+				//std::cout<<"The hash: "<< phs<<std::endl;
+				//std::cout<<"the password we save:" <<password<<std::endl;
 
 
-				std::cout<<"The salt we save while register: " <<saltstring <<std::endl;
-				std::cout<<"The hash we save while reg: " <<passwhash <<std::endl;
+				//std::cout<<"The salt we save while register: " <<saltstring <<std::endl;
+				//std::cout<<"The hash we save while reg: " <<passwhash <<std::endl;
 
 				std::string to_write = username+"\t"+saltstring+"\t"+ passwhash+"\n";
 

@@ -24,6 +24,17 @@ typedef unsigned char byte;
 
 int main(int argc, char*argv[])
 {
+
+
+	if(argc < 2 )
+	{
+		std::cout<<"Portnumber argument is needed" <<std::endl;
+		exit(1);
+	}
+
+	int portnum = std::stoi(std::string(argv[1]));
+	
+
 	CryptoPP::AutoSeededRandomPool prng;
 	//byte key[CryptoPP::AES::MAX_KEYLENGTH];
 	CryptoPP::RSA::PrivateKey pkey;
@@ -47,8 +58,8 @@ int main(int argc, char*argv[])
 
 	try
 	{	
-		Logger::getInstance()->Log("Ez tehat mukodik");
-		Connection master(18000,INADDR_ANY);
+		Logger::getInstance()->Log("Server starting");
+		Connection master(portnum,INADDR_ANY);
 
 		std::vector<std::shared_ptr<Connection>> clients;
 
@@ -76,8 +87,10 @@ int main(int argc, char*argv[])
 
 			int activity = select(max_sd+1,&readfs, NULL,NULL,NULL);
 
-			if((activity <0))
-				std::cout<<"Select Error"<<std::endl; // TODO: exception.
+			if((activity <0)){
+				std::cout<<"Select Error"<<std::endl;
+				Logger::getInstance()->Log("Select Error");
+			}
 			
 			if(FD_ISSET(master.getsocket(), &readfs))
 			{
@@ -89,6 +102,7 @@ int main(int argc, char*argv[])
 				clients.push_back(newconn);
 
 				std::cout<<"New connection"<<std::endl;
+				Logger::getInstance()->Log("New connection");
 
 			}
 
@@ -105,7 +119,8 @@ int main(int argc, char*argv[])
 							
 						clients.erase(it);
 					
-						std::cout<<"somebody disconnected"<<std::endl;
+						std::cout<<"Socket number "<<s->getsocket() << " disconnected"<<std::endl;
+						
 					}
 					else
 					{
@@ -116,8 +131,8 @@ int main(int argc, char*argv[])
 						
 
 						//std::cout<<"The message we got was"<<buffer <<std::endl;
-						std::cout<<"length is :"<< strlen(buffer) <<std::endl;
-						std::cout<<buffer<<std::endl;
+						//std::cout<<"length is :"<< strlen(buffer) <<std::endl;
+						//std::cout<<buffer<<std::endl;
 						std::string decoded;
 						CryptoPP::StringSource s2(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(decoded)));
 						
@@ -136,8 +151,9 @@ int main(int argc, char*argv[])
 				//				new CryptoPP::PK_DecryptorFilter(rng,d,new CryptoPP::StringSink(recovered)));
 
 						//std::cout<<recovered<<std::endl;
-						std::cout<<rsadecr.length()<<std::endl;
+						//std::cout<<rsadecr.length()<<std::endl;
 						s->SetKey(key);
+						Logger::getInstance()->Log("Key exchange message got from socket"+std::to_string(s->getsocket()));
 						s->setClientTs(Message::fromString(rsadecr).getTimestamp());
 						
 						
@@ -158,24 +174,41 @@ int main(int argc, char*argv[])
 
 							std::string recieved;
 							CryptoPP::StringSource dec(std::string{buffer},true,new CryptoPP::HexDecoder(new CryptoPP::StringSink(recieved)));
+							std::string respenc;
+
+							try{
 							std::string ptext = m.decrypt(recieved);
 							
+							Logger::getInstance()->Log("Recieved Message type:"+std::string{Message::fromString(ptext).getType()}+" From socket number:"+std::to_string(s->getsocket()));
 							if((Message::fromString(ptext).getType() == REGISTER || Message::fromString(ptext).getType() == LOGIN )	&& s->isloggedin())
 								continue;
 
 							Parser p;
 							Message resp = p.parse(Message::fromString(ptext),s);
+							Logger::getInstance()->Log("Send message type:"+std::string{resp.getType()}+" To socket number:"+std::to_string(s->getsocket()));
 						
-							std::string respenc = m.encrypt(resp.toByteStream());
+							respenc = m.encrypt(resp.toByteStream());
+							}
+							catch(CryptoPP::Exception&e)
+							{
+								s->incrementServerTS();
+								respenc = m.encrypt(Message(std::string{ERROR},"Wrong MAC or format",s->GetServerTS()).toByteStream());
+								Logger::getInstance()->Log("Send message type:"+std::string{ERROR}+" To socket number:"+std::to_string(s->getsocket()));
+
+							}
+							
 
 							std::string hexenc;
 							CryptoPP::StringSource(respenc,true,new CryptoPP::HexEncoder(new CryptoPP::StringSink(hexenc)));
-							
+						
+
 							send(sd,hexenc.c_str(),strlen(hexenc.c_str()),0);
 							memset(buffer,0,2048);
 
 							
-							std::cout<<resp.toByteStream()<<std::endl;
+							//std::cout<<resp.toByteStream()<<std::endl;
+							
+
 
 						}
 						//Message m = Message::fromString(std::string(buffer));
@@ -197,6 +230,7 @@ int main(int argc, char*argv[])
 	{
 		std::cout<<e.what()<<std::endl;
 		std::cout<< "caught exception"<<std::endl;
+		Logger::getInstance()->Log(e.what());
 	}
 	return 0;
 }

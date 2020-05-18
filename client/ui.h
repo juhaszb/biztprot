@@ -133,11 +133,11 @@ class UICommand
 	    std::cin.clear();
 	    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	    password = getpass("Password:",true);
-	    std::cout<<"The password you input:"<< password <<std::endl;
+	    //std::cout<<"The password you input:"<< password <<std::endl;
 	    return Message(std::string(1,LOGIN),username+";"+password);
             //Message m = new Message...
             //return m;
-	    std::cout<<"login volt"<<std::endl;
+	    //std::cout<<"login volt"<<std::endl;
             break;
 	    }
 	case REGISTER:
