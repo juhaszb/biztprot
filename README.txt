@@ -1,3 +1,10 @@
+Authors:
+Czikó Zsolt - V8UE4A
+Bak Márton - UJJMHJ
+Juhász Balázs - BI3ULX
+
+
+
 This document describes the changes from the design phase and documents how to compile the code.
 
 
@@ -17,6 +24,10 @@ g++ -std=c++17 generate.cpp main.cpp crypto.cpp -g -o server.o -l:cryptopp
 Client: Navigate into the client folder and issue the following command:
 g++ -std=c++17 gemerate.cpp main.cpp crypto.cpp -g -o client.o -l:cryptopp
 
+
+Before starting the client for the first time you have to copy the key from the server. (public.key)
+
+(You have to start the server first)
 
 Now you can start by starting the server with: ./server.o
 
@@ -55,6 +66,8 @@ Message formats:
 [1 byte]      [variable lenght] [4 bytes]
 
 Each message is encoded into hex and then sent through the network.
+
+The files are sent unencrypted in the data field of the message. (the message is encrypted of course). This is beacuse of time constraints.
 
 
 

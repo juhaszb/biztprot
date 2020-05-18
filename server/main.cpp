@@ -115,8 +115,9 @@ int main(int argc, char*argv[])
 					char buffer[2048];
 					if((read(sd,buffer,2047) == 0))
 					{
+						//std::cout<<"Sorry cant delete things"<<std::endl;
 						auto it = std::find(clients.begin(),clients.end(),s);
-							
+						//std::cout<<"Told ya"<<std::endl;	
 						clients.erase(it);
 					
 						std::cout<<"Socket number "<<s->getsocket() << " disconnected"<<std::endl;
