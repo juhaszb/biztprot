@@ -105,7 +105,7 @@ void DownloadFile(Connection * c, Message m )
 		std::cout<<"Something happened with downloading file"<<std::endl;
 		return;
 	}
-	std::cout<<"First response from server:"<<resp.toByteStream()   <<std::endl;
+	//std::cout<<"First response from server:"<<resp.toByteStream()   <<std::endl;
 	std::vector<std::string> spl = split(resp.getData(),";");
 	int linecount = std::stoi(spl[1]);
 	std::ofstream ofs(spl[0]);
